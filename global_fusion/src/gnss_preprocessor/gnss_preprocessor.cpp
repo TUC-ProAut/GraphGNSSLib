@@ -15,7 +15,6 @@
 #include <ros/ros.h>
 #include <stdio.h>
 #include <assert.h>
-#define ENACMP 1 // enable BeiDou
 
 extern void postposRegisterPub(ros::NodeHandle &n);
 extern void rtkposRegisterPub(ros::NodeHandle &n);
@@ -29,16 +28,38 @@ int main(int argc, char **argv)
 	ROS_INFO("\033[1;32m----> gnss_preprocessor Started.\033[0m");
 
 	/* get setup parameters */
-	int mode, nf, soltype;
-	std::string roverMeasureFile, baseMeasureFile, BeiDouEmpFile, GPSEmpFile;
-	std::string out_folder;
-	nh.param("mode",   mode, 2);
-	nh.param("nf",     nf, 2);
-	nh.param("soltype",soltype, 2);
+	int mode, nf, soltype, elevationmask;
+	std::vector<std::string> satellites;
+	nh.getParam("/satellites", satellites);
+	nh.param("/mode",   mode, 2);
+	nh.param("/nf",     nf, 2);
+	nh.param("/soltype",soltype, 2);
+	nh.param("/elevationmask",elevationmask, 0);
+
+	std::string roverMeasureFile, baseMeasureFile, BeiDouEmpFile, GPSEmpFile, GLONASSEmpFile, GalileoEmpFile, SP3file, SBASfile;
 	ros::param::get("roverMeasureFile", roverMeasureFile);
-	ros::param::get("baseMeasureFile", baseMeasureFile);
-	ros::param::get("BeiDouEmpFile", BeiDouEmpFile);
-	ros::param::get("GPSEmpFile", GPSEmpFile);
+	if(mode != 0){	// if the mode is set to 0 (single) there is no base station
+		ros::param::get("baseMeasureFile", baseMeasureFile);
+	}
+	if (std::find(satellites.begin(), satellites.end(), "BeiDou") != satellites.end()){	// find "BeiDou" in the satellite list
+		ros::param::get("BeiDouEmpFile", BeiDouEmpFile);
+	}
+	if (std::find(satellites.begin(), satellites.end(), "GPS") != satellites.end()){
+		ros::param::get("GPSEmpFile", GPSEmpFile);
+	}
+	if (std::find(satellites.begin(), satellites.end(), "GLONASS") != satellites.end()){
+		ros::param::get("GLONASSEmpFile", GLONASSEmpFile);
+	}
+	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
+		ros::param::get("GalileoEmpFile", GalileoEmpFile);
+	}
+	if (std::find(satellites.begin(), satellites.end(), "SP3") != satellites.end()){
+		ros::param::get("SP3file", SP3file);
+	}
+	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
+		ros::param::get("SBASfile", SBASfile);
+	}
+	std::string out_folder;
 	ros::param::get("out_folder", out_folder);
 
 	/* flag for state */
@@ -61,16 +82,30 @@ int main(int argc, char **argv)
 	solopt_t solopt = solopt_default;	// output solution option
 	filopt_t filopt = {""};	            // file option
 	prcopt.mode = mode;			// Kinematic RTK
-	// prcopt.mode = PMODE_SINGLE;			// SPP
-	prcopt.navsys = SYS_ALL;              // use all satellites system
+	prcopt.navsys = 0;			// all used satellites
+	if (std::find(satellites.begin(), satellites.end(), "BeiDou") != satellites.end()){
+		prcopt.navsys = prcopt.navsys + SYS_CMP;
+	}
+	if (std::find(satellites.begin(), satellites.end(), "GPS") != satellites.end()){
+		prcopt.navsys = prcopt.navsys + SYS_GPS;
+	}
+	if (std::find(satellites.begin(), satellites.end(), "GLONASS") != satellites.end()){
+		prcopt.navsys = prcopt.navsys + SYS_GLO;
+	}
+	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
+		prcopt.navsys = prcopt.navsys + SYS_GAL;
+	}
+	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
+		prcopt.navsys = prcopt.navsys + SYS_SBS;
+	}
 	prcopt.nf = nf;						// frequency (1:L1,2:L1+L2,3:L1+L2+L5) 
 	prcopt.soltype = soltype;					// 0:forward,1:backward,2:combined
-	prcopt.elmin = 15.0*D2R;				// elevation mask (rad)	
+	prcopt.elmin = elevationmask*D2R;				// elevation mask (rad)	
 	prcopt.tidecorr = 0;					// earth tide correction (0:off,1-:on) 
 	prcopt.posopt[4] = 0;               // use RAIM FDE (qmo)  1
 	prcopt.tropopt = TROPOPT_SAAS;        // troposphere option: Saastamoinen model
 	prcopt.ionoopt = IONOOPT_BRDC;		// ionosphere option: Broad cast
-	prcopt.sateph = EPHOPT_BRDC;			// ephemeris option: broadcast ephemeris
+	prcopt.sateph = EPHOPT_PREC;			// ephemeris option: broadcast ephemeris
 
 	prcopt.modear = 3;					// AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold)
 
@@ -92,9 +127,27 @@ int main(int argc, char **argv)
 	for (i=0;i<10;i++) infile[i]=infile_[i];
 
 	strcpy(infile[n++],strdup(roverMeasureFile.c_str()));
-	strcpy(infile[n++],strdup(baseMeasureFile.c_str()));
-	strcpy(infile[n++],strdup(BeiDouEmpFile.c_str()));
-	strcpy(infile[n++],strdup(GPSEmpFile.c_str()));
+	if(mode != 0){
+		strcpy(infile[n++],strdup(baseMeasureFile.c_str()));
+	}
+	if (std::find(satellites.begin(), satellites.end(), "BeiDou") != satellites.end()){
+		strcpy(infile[n++],strdup(BeiDouEmpFile.c_str()));
+	}
+	if (std::find(satellites.begin(), satellites.end(), "GPS") != satellites.end()){
+		strcpy(infile[n++],strdup(GPSEmpFile.c_str()));
+	}
+	if (std::find(satellites.begin(), satellites.end(), "GLONASS") != satellites.end()){
+        	strcpy(infile[n++],strdup(GLONASSEmpFile.c_str()));
+	}
+	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){        
+		strcpy(infile[n++],strdup(GalileoEmpFile.c_str()));
+	}
+	if (std::find(satellites.begin(), satellites.end(), "SP3") != satellites.end()){
+        	strcpy(infile[n++],strdup(SP3file.c_str()));
+	}
+	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
+        	strcpy(infile[n++],strdup(SBASfile.c_str()));
+	}
 
 	/* if you use the RTK mode, specify the position of the station (only used by RTKLIB)
 	 * following is an example position of the base HKSC in Hong Kong */

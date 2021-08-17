@@ -1,0 +1,22 @@
+<!-- Dataset Berlin Gendarmenmarkt from TU Chemnitz smartLoc project. -->
+<launch>
+    <!-- load dataset-specific params -->
+    <rosparam command="load" file="$(find global_fusion)/config/berlin.yaml" />
+
+    <!-- path of dataset -->
+    <param name="roverMeasureFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/Berlin_Gendarmenmarkt.obs" />
+    <param name="GLONASSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/brdc1580.16g" />
+    <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/brdc1580.16n" />
+    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/Berlin_Gendarmenmarkt.sp3" />
+    <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/REDU00BEL_R_20161580000_01D_SN.rnx" />
+
+    <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/rtklibResult.pos" />
+
+    <node name="gnss_preprocessor_node" pkg="global_fusion" type="gnss_preprocessor_node" output="screen" />
+    
+
+    <!-- Static fake TF transform -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake" args="0 0 0 0 0 0 map base_link" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
+
+</launch>
