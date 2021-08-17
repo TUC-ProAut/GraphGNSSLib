@@ -105,7 +105,12 @@ int main(int argc, char **argv)
 	prcopt.posopt[4] = 0;               // use RAIM FDE (qmo)  1
 	prcopt.tropopt = TROPOPT_SAAS;        // troposphere option: Saastamoinen model
 	prcopt.ionoopt = IONOOPT_BRDC;		// ionosphere option: Broad cast
-	prcopt.sateph = EPHOPT_PREC;			// ephemeris option: broadcast ephemeris
+	if (std::find(satellites.begin(), satellites.end(), "SP3") != satellites.end() or std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
+		prcopt.sateph = EPHOPT_PREC;			// ephemeris option: broadcast ephemeris (0:brdc,1:precise,2:brdc+sbas,3:brdc+ssrapc,4:brdc+ssrcom)
+	}
+	else{
+		prcopt.sateph = EPHOPT_BRDC;			// ephemeris option: broadcast ephemeris (0:brdc,1:precise,2:brdc+sbas,3:brdc+ssrapc,4:brdc+ssrcom)
+	}
 
 	prcopt.modear = 3;					// AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold)
 
