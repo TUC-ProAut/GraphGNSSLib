@@ -1,0 +1,23 @@
+<!-- Dataset Frankfurt Westend Tower from TU Chemnitz smartLoc project. -->
+<launch>
+    <!-- load dataset-specific params -->
+    <rosparam command="load" file="$(find global_fusion)/config/frankfurt.yaml" />
+
+    <!-- path of dataset -->
+    <param name="roverMeasureFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/Frankfurt_Westend_Tower.obs" />
+    <param name="GLONASSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/brdc2510.16g" />
+    <param name="GalileoEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/wtzz2510.16l" />
+    <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/brdc2510.16n" />
+    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/Frankfurt_Westend_Tower.sp3" />
+    <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/REDU00BEL_R_20162510000_01D_SN.rnx" />
+
+    <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/rtklibResult.pos" />
+
+    <node name="gnss_preprocessor_node" pkg="global_fusion" type="gnss_preprocessor_node" output="screen" />
+    
+
+    <!-- Static fake TF transform -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake" args="0 0 0 0 0 0 map base_link" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
+
+</launch>

@@ -116,7 +116,8 @@ extern "C" {
 #define TSYS_CMP    5                   /* time system: BeiDou time */
 
 #define ENACMP      1                   /* Weisong: enable BeiDou System */
-// #define ENAGLO      1                   /* Weisong: enable BeiDou System */
+#define ENAGLO      1                   /* Weisong: enable GLONASS System */
+#define ENAGAL      1                 /* enable GALILEO System */
 
 
 #define RTK_FGO 0
@@ -136,15 +137,35 @@ extern "C" {
 
 #else
 
+/** Berlin **/
+#define ref_lon    13.404954         /* reference longitude placed in Berlin */
+#define ref_lat    52.520007        /* reference latitude placed in Berlin */
+#define ref_alt    6.3584                /* reference altitude placed in Berlin */
+#define station_x     0       /* Weisong: pose x of base station (not used) */
+#define station_y     0        /* Weisong: pose y of base station (not used) */
+#define station_z     0        /* Weisong: pose z of station (not used) */
+#define start_gps_sec 0
+#define end_gps_sec 2703060
+
+/** Frankfurt **/
+//#define ref_lon    8.682127         /* reference longitude placed in Frankfurt */
+//#define ref_lat    50.110924        /* reference latitude placed in Frankfurt */
+//#define ref_alt    109                /* reference altitude placed in Frankfurt */
+//#define station_x     0       /* Weisong: pose x of base station (not used) */
+//#define station_y     0        /* Weisong: pose y of base station (not used) */
+//#define station_z     0        /* Weisong: pose z of station (not used) */
+//#define start_gps_sec 0
+//#define end_gps_sec 2703060
+
 /** TST data, evaluation for GPS solutions (dynamic, loop) **/
-#define ref_lon    114.179000972         /* Weisong: reference longitude */
-#define ref_lat    22.3011535667        /* Weisong: reference latitude */
-#define ref_alt    6.42821512092                /* Weisong: reference altitude */
-#define station_x     -2414266.9200       /* Weisong: pose x of base station */
-#define station_y     5386768.9870        /* Weisong: pose y of base station */
-#define station_z     2407460.0310        /* Weisong: pose z of station */
-#define start_gps_sec 46701
-#define end_gps_sec 47185
+//#define ref_lon    114.179000972         /* Weisong: reference longitude */
+//#define ref_lat    22.3011535667        /* Weisong: reference latitude */
+//#define ref_alt    6.42821512092                /* Weisong: reference altitude */
+//#define station_x     -2414266.9200       /* Weisong: pose x of base station */
+//#define station_y     5386768.9870        /* Weisong: pose y of base station */
+//#define station_z     2407460.0310        /* Weisong: pose z of station */
+//#define start_gps_sec 46701
+//#define end_gps_sec 47185
 
 
 #endif

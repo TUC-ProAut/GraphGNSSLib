@@ -657,7 +657,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
 
     /* estimate receiver position with pseudorange by WLS and Eigen */
     bool haveOneBeiDou = false;
-    int CMP_cnt = 0, GPS_cnt = 0;
+    int CMP_cnt = 0, GPS_cnt = 0, GAL_cnt = 0, GLO_cnt = 0, SBS_cnt = 0;
     for(int s_i=0;s_i<n; s_i++)
     {
         nlosExclusion::GNSS_Raw gnss_raw;
@@ -753,6 +753,18 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
             haveOneBeiDou = true;
             CMP_cnt++;
         }
+        else if(sys==SYS_GAL)
+        {
+            GAL_cnt++;
+        }
+        else if(sys==SYS_GLO)
+        {
+            GLO_cnt++;
+        }
+	else if(sys==SYS_SBS)
+        {
+            SBS_cnt++;
+        }
         else
         {
             LOG(INFO) << "Unknow!!!!! Satellite   "<<current_tow;
@@ -763,6 +775,9 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
 
     LOG(INFO) << "GPS_cnt   "<<GPS_cnt;
     LOG(INFO) << "CMP_cnt   "<<CMP_cnt;
+    LOG(INFO) << "GAL_cnt   "<<GAL_cnt;
+    LOG(INFO) << "GLO_cnt   "<<GLO_cnt;
+    LOG(INFO) << "SBS_cnt   "<<SBS_cnt;
     
     pub_gnss_raw.publish(gnss_data);
     
