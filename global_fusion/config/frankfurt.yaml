@@ -8,7 +8,8 @@ satellites: ## all used gnss-systems
     - GPS
     - GLONASS
     - Galileo
-    - SP3
     - SBAS
+
+precise_ephemeris: false # use precise satellite orbit solution (SP3) (true/false)
 
 elevationmask: 0 ## min. elevation of satellites to be used in deg
