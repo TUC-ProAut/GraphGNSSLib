@@ -20,6 +20,6 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
 
     <!-- Rosbag recording -->
-    <node pkg="rosbag" type="record" name="rosbag_Berlin_Gendarmenmarkt" args="record -O $(find global fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/Berlin_Gendarmenmarkt_preprocessed.bag -a"/> 
+    <node pkg="rosbag" type="record" name="rosbag_Berlin_Gendarmenmarkt" args="record -O $(find global_fusion)/dataset/smartLoc/RINEX/Berlin_Gendarmenmarkt/Berlin_Gendarmenmarkt_preprocessed.bag -a"/> 
 
 </launch>

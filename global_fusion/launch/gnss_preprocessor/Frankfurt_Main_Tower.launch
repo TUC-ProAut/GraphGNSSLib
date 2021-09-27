@@ -21,6 +21,6 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
 
     <!-- Rosbag recording -->
-    <node pkg="rosbag" type="record" name="rosbag_Frankfurt_Main_Tower" args="record -O $(find global fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/Frankfurt_Main_Tower_preprocessed.bag -a"/> 
+    <node pkg="rosbag" type="record" name="rosbag_Frankfurt_Main_Tower" args="record -O $(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/Frankfurt_Main_Tower_preprocessed.bag -a"/> 
 
 </launch>
