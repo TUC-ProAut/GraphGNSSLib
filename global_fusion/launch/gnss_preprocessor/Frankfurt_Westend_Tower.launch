@@ -20,4 +20,7 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake" args="0 0 0 0 0 0 map base_link" />
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
 
+    <!-- Rosbag recording -->
+    <node pkg="rosbag" type="record" name="rosbag_Frankfurt_Westend_Tower" args="record -O $(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/Frankfurt_Westend_Tower_preprocessed.bag -a"/> 
+
 </launch>

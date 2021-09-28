@@ -7,7 +7,8 @@ soltype: 2 ## type of solution (0:forward,1:backward,2:combined)
 satellites: ## all used gnss-systems
     - GPS
     - GLONASS
-    - SP3
     - SBAS
+
+precise_ephemeris: true # use precise satellite orbit solution (SP3) (true/false)
 
 elevationmask: 0 ## min. elevation of satellites to be used in deg

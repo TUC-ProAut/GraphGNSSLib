@@ -23,19 +23,22 @@ extern void pntposRegisterPub(ros::NodeHandle &n);
 int main(int argc, char **argv)
 {
 	
-    ros::init(argc, argv, "gnss_preprocessor_node");
+	ros::init(argc, argv, "gnss_preprocessor_node");
 	ros::NodeHandle nh("~");
 	ROS_INFO("\033[1;32m----> gnss_preprocessor Started.\033[0m");
 
-	/* get setup parameters */
+	/* get setup parameters from yaml config */
 	int mode, nf, soltype, elevationmask;
 	std::vector<std::string> satellites;
+	bool precise_ephemeris;
 	nh.getParam("/satellites", satellites);
+	nh.param("/precise_ephemeris", precise_ephemeris, false);
 	nh.param("/mode",   mode, 2);
 	nh.param("/nf",     nf, 2);
 	nh.param("/soltype",soltype, 2);
 	nh.param("/elevationmask",elevationmask, 0);
 
+	/* read paths for datasets specified in the launchfile */
 	std::string roverMeasureFile, baseMeasureFile, BeiDouEmpFile, GPSEmpFile, GLONASSEmpFile, GalileoEmpFile, SP3file, SBASfile;
 	ros::param::get("roverMeasureFile", roverMeasureFile);
 	if(mode != 0){	// if the mode is set to 0 (single) there is no base station
@@ -53,7 +56,7 @@ int main(int argc, char **argv)
 	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
 		ros::param::get("GalileoEmpFile", GalileoEmpFile);
 	}
-	if (std::find(satellites.begin(), satellites.end(), "SP3") != satellites.end()){
+	if (precise_ephemeris){
 		ros::param::get("SP3file", SP3file);
 	}
 	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
@@ -63,7 +66,7 @@ int main(int argc, char **argv)
 	ros::param::get("out_folder", out_folder);
 
 	/* flag for state */
-    int n=0,i,stat;
+	int n=0,i,stat;
 
 	/* input node handle */
 	postposRegisterPub(nh);
@@ -81,7 +84,7 @@ int main(int argc, char **argv)
 	prcopt_t prcopt = prcopt_default;	// processing option
 	solopt_t solopt = solopt_default;	// output solution option
 	filopt_t filopt = {""};	            // file option
-	prcopt.mode = mode;			// Kinematic RTK
+	prcopt.mode = mode;			// Positioning mode
 	prcopt.navsys = 0;			// all used satellites
 	if (std::find(satellites.begin(), satellites.end(), "BeiDou") != satellites.end()){
 		prcopt.navsys = prcopt.navsys + SYS_CMP;
@@ -95,21 +98,36 @@ int main(int argc, char **argv)
 	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
 		prcopt.navsys = prcopt.navsys + SYS_GAL;
 	}
-	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
+	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end() && (!precise_ephemeris)){	// only use SBAS if we do not use the precise (SP3) ephemeris data
 		prcopt.navsys = prcopt.navsys + SYS_SBS;
 	}
 	prcopt.nf = nf;						// frequency (1:L1,2:L1+L2,3:L1+L2+L5) 
 	prcopt.soltype = soltype;					// 0:forward,1:backward,2:combined
-	prcopt.elmin = elevationmask*D2R;				// elevation mask (rad)	
+	prcopt.elmin = elevationmask * D2R;				// elevation mask (rad)
 	prcopt.tidecorr = 0;					// earth tide correction (0:off,1-:on) 
 	prcopt.posopt[4] = 0;               // use RAIM FDE (qmo)  1
-	prcopt.tropopt = TROPOPT_SAAS;        // troposphere option: Saastamoinen model
-	prcopt.ionoopt = IONOOPT_BRDC;		// ionosphere option: Broad cast
-	if (std::find(satellites.begin(), satellites.end(), "SP3") != satellites.end() or std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
-		prcopt.sateph = EPHOPT_PREC;			// ephemeris option: broadcast ephemeris (0:brdc,1:precise,2:brdc+sbas,3:brdc+ssrapc,4:brdc+ssrcom)
+
+	/* ephemeris, troposphere and ionosphere option */
+	if (precise_ephemeris){
+		prcopt.sateph = EPHOPT_PREC;			// ephemeris option: precise ephemeris
+		if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
+			prcopt.tropopt = TROPOPT_SBAS;        		// troposphere option: SBAS model
+			prcopt.ionoopt = IONOOPT_SBAS;			// ionosphere option: SBAS cast
+		}
+		else{
+			prcopt.tropopt = TROPOPT_SAAS;        		// troposphere option: Saastamoinen model
+			prcopt.ionoopt = IONOOPT_BRDC;			// ionosphere option: Broad cast
+		}
+	}
+	else if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
+		prcopt.sateph = EPHOPT_SBAS;			// ephemeris option: broadcast + sbas ephemeris
+		prcopt.tropopt = TROPOPT_SBAS;        		// troposphere option: SBAS model
+		prcopt.ionoopt = IONOOPT_SBAS;			// ionosphere option: SBAS cast
 	}
 	else{
-		prcopt.sateph = EPHOPT_BRDC;			// ephemeris option: broadcast ephemeris (0:brdc,1:precise,2:brdc+sbas,3:brdc+ssrapc,4:brdc+ssrcom)
+		prcopt.sateph = EPHOPT_BRDC;			// ephemeris option: broadcast ephemeris
+		prcopt.tropopt = TROPOPT_SAAS;        		// troposphere option: Saastamoinen model
+		prcopt.ionoopt = IONOOPT_BRDC;			// ionosphere option: Broad cast
 	}
 
 	prcopt.modear = 3;					// AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold)
@@ -147,7 +165,7 @@ int main(int argc, char **argv)
 	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){        
 		strcpy(infile[n++],strdup(GalileoEmpFile.c_str()));
 	}
-	if (std::find(satellites.begin(), satellites.end(), "SP3") != satellites.end()){
+	if (precise_ephemeris){
         	strcpy(infile[n++],strdup(SP3file.c_str()));
 	}
 	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
