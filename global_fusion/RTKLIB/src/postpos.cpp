@@ -52,8 +52,8 @@
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PointStamped.h>
-#include <novatel_msgs/INSPVAX.h> // novatel_msgs/INSPVAX
-#include <novatel_msgs/BESTPOS.h> // novatel_msgs/INSPVAX
+#include <novatel_oem7_msgs/INSPVAX.h> // novatel_oem7_msgs/INSPVAX
+#include <novatel_oem7_msgs/BESTPOS.h> // novatel_oem7_msgs/INSPVAX
 
 
 static const char rcsid[]="$Id: postpos.c,v 1.1 2008/07/17 21:48:06 ttaka Exp $";

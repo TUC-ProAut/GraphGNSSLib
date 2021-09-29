@@ -28,10 +28,7 @@ generate_messages(
    std_msgs
   )
 
-catkin_package(
-
-
-  CATKIN_DEPENDS message_runtime roscpp message_filters nodelet sensor_msgs tf2 tf2_ros
+catkin_package(CATKIN_DEPENDS message_runtime roscpp message_filters nodelet sensor_msgs tf2 tf2_ros
 )
 
 include_directories(

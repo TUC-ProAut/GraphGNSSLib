@@ -60,8 +60,8 @@
 #include <nav_msgs/Path.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PointStamped.h>
-#include <novatel_msgs/INSPVAX.h> // novatel_msgs/INSPVAX
-#include <novatel_msgs/BESTPOS.h> // novatel_msgs/INSPVAX
+#include <novatel_oem7_msgs/INSPVAX.h> // novatel_oem7_msgs/INSPVAX
+#include <novatel_oem7_msgs/BESTPOS.h> // novatel_oem7_msgs/INSPVAX
 
 #include <nlosExclusion/GNSS_Raw_Array.h>
 #include <nlosExclusion/GNSS_Raw.h>

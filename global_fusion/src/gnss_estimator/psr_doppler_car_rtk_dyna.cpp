@@ -43,7 +43,7 @@
 // ros
 #include <ros/ros.h>
 /* Reference from NovAtel GNSS/INS */
-#include <novatel_msgs/INSPVAX.h> // novatel_msgs/INSPVAX
+#include <novatel_oem7_msgs/INSPVAX.h> // novatel_oem7_msgs/INSPVAX
 #include "gnss_tools.h"
 #include <nlosExclusion/GNSS_Raw_Array.h>
 
