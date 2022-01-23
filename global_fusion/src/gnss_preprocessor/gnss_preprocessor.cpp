@@ -275,7 +275,7 @@ int main(int argc, char **argv)
         strcpy(infile[n++],strdup(SBASfile.c_str()));
 	}
 	if (ionosphere_correction == 5){
-		strcpy(infile[n++],strdup(ionexFile.c_str()));
+		strcpy(filopt.iono, ionexFile.c_str());	// copy the ionex path to the corresponding struct
 	}
 
 	/* if you use the RTK mode, specify the position of the station (only used by RTKLIB)
