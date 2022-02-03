@@ -840,6 +840,7 @@ static int openses(const prcopt_t *popt, const solopt_t *sopt,
     /* read ionosphere data file */
     if (*fopt->iono&&(ext=strrchr(fopt->iono,'.'))) {
         if (strlen(ext)==4&&(ext[3]=='i'||ext[3]=='I')) {
+            ROS_INFO("IONEX correction is used\n");
             readtec(fopt->iono,nav,0);
         }
 #ifdef EXTSTEC

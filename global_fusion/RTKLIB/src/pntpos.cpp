@@ -661,7 +661,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     for(int s_i=0;s_i<n; s_i++)
     {
         nlosExclusion::GNSS_Raw gnss_raw;
-        gnss_raw.GNSS_time = current_tow;
+        gnss_raw.GNSS_time = obs[0].time.time + obs[0].time.sec;   // GPS time in seconds from start of GPS epoch
         gnss_raw.total_sv = float(n);
         gnss_raw.prn_satellites_index = float(obs[s_i].sat);
         // std::cout<<"sat prn -> " << float(obs[s_i].sat) << std::endl;
@@ -722,13 +722,44 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         // LOG(INFO) << "nav->lam[obs[s_i].sat-1][0];  "<<nav->lam[obs[s_i].sat-1][0];
         // LOG(INFO) << "nav->lam[obs[s_i].sat][0];  "<<nav->lam[obs[s_i].sat][0];
         int sys=satsys(obs[s_i].sat,NULL);   
-        if(gnss_raw.elevation>15.0)
+        if((gnss_raw.elevation*D2R)>opt_.elmin) // must be '>' to avoid publishing sats with elevation = 0
         {
             gnss_data.GNSS_Raws.push_back(gnss_raw);
             #if 0
             std::cout << "epoch_time-> "<< epoch_time[0]<<"/"<<epoch_time[1]<<"/"<<epoch_time[2]<< " "<<epoch_time[3]<<":"<<epoch_time[4]<<":"<<epoch_time[5]<<std::endl;
             LOG(INFO) << "obs[s_i].P[0];  "<<obs[s_i].P[0];
             LOG(INFO) << "obs[s_i].L[0];  "<<obs[s_i].L[0];
+            #endif
+
+            #if 1 // debug satellite iformation
+            // LOG(INFO) << "obs[s_i].sat  "<<float(obs[s_i].sat);
+            if(sys==SYS_GPS)
+            {
+                // LOG(INFO) << "GPS Satellite  "<<current_tow;
+                GPS_cnt++;
+            }
+            else if(sys==SYS_CMP)
+            {
+                // LOG(INFO) << "BeiDou Satellite   "<<current_tow;
+                haveOneBeiDou = true;
+                CMP_cnt++;
+            }
+            else if(sys==SYS_GAL)
+            {
+                GAL_cnt++;
+            }
+            else if(sys==SYS_GLO)
+            {
+                GLO_cnt++;
+            }
+            else if(sys==SYS_SBS)
+            {
+                SBS_cnt++;
+            }
+            else
+            {
+                LOG(INFO) << "Unknow!!!!! Satellite   "<<current_tow;
+            }
             #endif
         }
         else
@@ -739,37 +770,6 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
             LOG(INFO) << "obs[s_i].L[0];  "<<obs[s_i].L[0];;
             #endif
         }
-        
-        #if 1 // debug satellite iformation
-        // LOG(INFO) << "obs[s_i].sat  "<<float(obs[s_i].sat);
-        if(sys==SYS_GPS)
-        {
-            // LOG(INFO) << "GPS Satellite  "<<current_tow;
-            GPS_cnt++;
-        }
-        else if(sys==SYS_CMP)
-        {
-            // LOG(INFO) << "BeiDou Satellite   "<<current_tow;
-            haveOneBeiDou = true;
-            CMP_cnt++;
-        }
-        else if(sys==SYS_GAL)
-        {
-            GAL_cnt++;
-        }
-        else if(sys==SYS_GLO)
-        {
-            GLO_cnt++;
-        }
-	else if(sys==SYS_SBS)
-        {
-            SBS_cnt++;
-        }
-        else
-        {
-            LOG(INFO) << "Unknow!!!!! Satellite   "<<current_tow;
-        }
-        #endif
         
     }
 

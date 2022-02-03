@@ -10,6 +10,7 @@
     <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/brdc2510.16n" />
     <param name="SP3file" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/Frankfurt_Westend_Tower.sp3" />
     <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/REDU00BEL_R_20162510000_01D_SN.rnx" />
+    <param name="ionexFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/codg2510.16i" />
 
     <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/rtklibResult.pos" />
 

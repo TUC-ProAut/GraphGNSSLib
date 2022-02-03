@@ -1,6 +1,6 @@
 /*******************************************************
  * Copyright (C) 2019, Intelligent Positioning and Navigation Lab, Hong Kong Polytechnic University
- * 
+ *
  * This file is part of GraphGNSSLib.
  * Licensed under the GNU General Public License v3.0;
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ extern void pntposRegisterPub(ros::NodeHandle &n);
 
 int main(int argc, char **argv)
 {
-	
+
 	ros::init(argc, argv, "gnss_preprocessor_node");
 	ros::NodeHandle nh("~");
 	ROS_INFO("\033[1;32m----> gnss_preprocessor Started.\033[0m");
 
 	/* get setup parameters from yaml config */
-	int mode, nf, soltype, elevationmask;
+	int mode, nf, soltype, elevationmask, ionosphere_correction;
 	std::vector<std::string> satellites;
 	bool precise_ephemeris;
 	nh.getParam("/satellites", satellites);
@@ -37,30 +37,134 @@ int main(int argc, char **argv)
 	nh.param("/nf",     nf, 2);
 	nh.param("/soltype",soltype, 2);
 	nh.param("/elevationmask",elevationmask, 0);
+	nh.param("/ionosphere_correction",ionosphere_correction, 0);
 
 	/* read paths for datasets specified in the launchfile */
-	std::string roverMeasureFile, baseMeasureFile, BeiDouEmpFile, GPSEmpFile, GLONASSEmpFile, GalileoEmpFile, SP3file, SBASfile;
-	ros::param::get("roverMeasureFile", roverMeasureFile);
+	FILE *file;
+	std::string roverMeasureFile, baseMeasureFile, BeiDouEmpFile, GPSEmpFile, GLONASSEmpFile, GalileoEmpFile, SP3file, SBASfile, ionexFile;
+	if (! ros::param::get("roverMeasureFile", roverMeasureFile)){
+			ROS_INFO("\033[31m----> No Rover file provided. Stopping!\033[0m");
+			return 0;
+		}
+	else{
+		if (file = fopen(roverMeasureFile.c_str(), "r")) {
+			fclose(file);
+		} else {
+			ROS_INFO("\033[31m----> Rover file not found. Stopping!\033[0m");
+			return 0;
+		}
+	}
 	if(mode != 0){	// if the mode is set to 0 (single) there is no base station
-		ros::param::get("baseMeasureFile", baseMeasureFile);
+		if (! ros::param::get("baseMeasureFile", baseMeasureFile)){
+			ROS_INFO("\033[31m----> No Base file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(baseMeasureFile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> Base file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
 	}
 	if (std::find(satellites.begin(), satellites.end(), "BeiDou") != satellites.end()){	// find "BeiDou" in the satellite list
-		ros::param::get("BeiDouEmpFile", BeiDouEmpFile);
+		if (! ros::param::get("BeiDouEmpFile", BeiDouEmpFile)){
+			ROS_INFO("\033[31m----> No BeiDou file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(roverMeasureFile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> BeiDou file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
 	}
 	if (std::find(satellites.begin(), satellites.end(), "GPS") != satellites.end()){
-		ros::param::get("GPSEmpFile", GPSEmpFile);
+		if (! ros::param::get("GPSEmpFile", GPSEmpFile)){
+			ROS_INFO("\033[31m----> No GPS file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(GPSEmpFile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> GPS file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
 	}
 	if (std::find(satellites.begin(), satellites.end(), "GLONASS") != satellites.end()){
-		ros::param::get("GLONASSEmpFile", GLONASSEmpFile);
+		if (! ros::param::get("GLONASSEmpFile", GLONASSEmpFile)){
+			ROS_INFO("\033[31m----> No GLONASS file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(GLONASSEmpFile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> GLONASS file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
 	}
 	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
-		ros::param::get("GalileoEmpFile", GalileoEmpFile);
+		if (! ros::param::get("GalileoEmpFile", GalileoEmpFile)){
+			ROS_INFO("\033[31m----> No Galileo file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(GalileoEmpFile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> Galileo file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
 	}
 	if (precise_ephemeris){
-		ros::param::get("SP3file", SP3file);
+		if (! ros::param::get("SP3file", SP3file)){
+			ROS_INFO("\033[31m----> No SP3 file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(SP3file.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> SP3 file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
 	}
 	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
-		ros::param::get("SBASfile", SBASfile);
+		if (! ros::param::get("SBASfile", SBASfile)){
+			ROS_INFO("\033[31m----> No SBAS file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(SBASfile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> SBAS file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
+	}
+	if (ionosphere_correction == 5){
+		if (! ros::param::get("ionexFile", ionexFile)){
+			ROS_INFO("\033[31m----> No IONEX file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(ionexFile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> IONEX file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
 	}
 	std::string out_folder;
 	ros::param::get("out_folder", out_folder);
@@ -101,34 +205,33 @@ int main(int argc, char **argv)
 	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end() && (!precise_ephemeris)){	// only use SBAS if we do not use the precise (SP3) ephemeris data
 		prcopt.navsys = prcopt.navsys + SYS_SBS;
 	}
-	prcopt.nf = nf;						// frequency (1:L1,2:L1+L2,3:L1+L2+L5) 
+	prcopt.nf = nf;						// frequency (1:L1,2:L1+L2,3:L1+L2+L5)
 	prcopt.soltype = soltype;					// 0:forward,1:backward,2:combined
 	prcopt.elmin = elevationmask * D2R;				// elevation mask (rad)
-	prcopt.tidecorr = 0;					// earth tide correction (0:off,1-:on) 
+	prcopt.tidecorr = 0;					// earth tide correction (0:off,1-:on)
 	prcopt.posopt[4] = 0;               // use RAIM FDE (qmo)  1
 
-	/* ephemeris, troposphere and ionosphere option */
+	/* ephemeris and troposphere option */
 	if (precise_ephemeris){
 		prcopt.sateph = EPHOPT_PREC;			// ephemeris option: precise ephemeris
 		if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
 			prcopt.tropopt = TROPOPT_SBAS;        		// troposphere option: SBAS model
-			prcopt.ionoopt = IONOOPT_SBAS;			// ionosphere option: SBAS cast
 		}
 		else{
 			prcopt.tropopt = TROPOPT_SAAS;        		// troposphere option: Saastamoinen model
-			prcopt.ionoopt = IONOOPT_BRDC;			// ionosphere option: Broad cast
 		}
 	}
 	else if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
 		prcopt.sateph = EPHOPT_SBAS;			// ephemeris option: broadcast + sbas ephemeris
 		prcopt.tropopt = TROPOPT_SBAS;        		// troposphere option: SBAS model
-		prcopt.ionoopt = IONOOPT_SBAS;			// ionosphere option: SBAS cast
 	}
 	else{
 		prcopt.sateph = EPHOPT_BRDC;			// ephemeris option: broadcast ephemeris
 		prcopt.tropopt = TROPOPT_SAAS;        		// troposphere option: Saastamoinen model
-		prcopt.ionoopt = IONOOPT_BRDC;			// ionosphere option: Broad cast
 	}
+
+	// ionosphere option (0: off, 1: broadcast, 2: SBAS, 3: Iono-Free LC, 4: estimate TEC, 5: IONEX TEC, 6: QZSS broadcast)
+	prcopt.ionoopt = ionosphere_correction;
 
 	prcopt.modear = 3;					// AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold)
 
@@ -160,16 +263,19 @@ int main(int argc, char **argv)
 		strcpy(infile[n++],strdup(GPSEmpFile.c_str()));
 	}
 	if (std::find(satellites.begin(), satellites.end(), "GLONASS") != satellites.end()){
-        	strcpy(infile[n++],strdup(GLONASSEmpFile.c_str()));
+        strcpy(infile[n++],strdup(GLONASSEmpFile.c_str()));
 	}
-	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){        
+	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
 		strcpy(infile[n++],strdup(GalileoEmpFile.c_str()));
 	}
 	if (precise_ephemeris){
-        	strcpy(infile[n++],strdup(SP3file.c_str()));
+        strcpy(infile[n++],strdup(SP3file.c_str()));
 	}
 	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end()){
-        	strcpy(infile[n++],strdup(SBASfile.c_str()));
+        strcpy(infile[n++],strdup(SBASfile.c_str()));
+	}
+	if (ionosphere_correction == 5){
+		strcpy(filopt.iono, ionexFile.c_str());	// copy the ionex path to the corresponding struct
 	}
 
 	/* if you use the RTK mode, specify the position of the station (only used by RTKLIB)
@@ -215,7 +321,7 @@ extern int showmsg(char *format,...) {
 		va_end(arg);
 		printf("%s\n",buff);
 	}
-	return 0;	
+	return 0;
 }
 extern void settspan(gtime_t ts, gtime_t te) {}
 extern void settime(gtime_t time) {}
