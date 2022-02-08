@@ -661,7 +661,8 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     for(int s_i=0;s_i<n; s_i++)
     {
         nlosExclusion::GNSS_Raw gnss_raw;
-        gnss_raw.GNSS_time = obs[0].time.time + obs[0].time.sec;   // GPS time in seconds from start of GPS epoch
+        double gpstime = current_week * 86400 * 7 + current_tow;    // GPS time in seconds from start of GPS epoch inclusive leap seconds (86400 = sec per day)
+        gnss_raw.GNSS_time = gpstime;
         gnss_raw.total_sv = float(n);
         gnss_raw.prn_satellites_index = float(obs[s_i].sat);
         // std::cout<<"sat prn -> " << float(obs[s_i].sat) << std::endl;
