@@ -25,8 +25,10 @@ find_package(catkin REQUIRED COMPONENTS
 # Eigen
 find_package(Eigen3 REQUIRED)
 
-# ceres solver
-find_package(Ceres REQUIRED)
+# glog & gflags
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(glog REQUIRED libglog)
+find_package(gflags REQUIRED)
 
 # geographic lib for coordinate frame conversions
 find_package(GeographicLib REQUIRED)
@@ -34,6 +36,7 @@ find_package(GeographicLib REQUIRED)
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${glog_INCLUDE_DIRS}
 )
 
 catkin_package()
@@ -69,25 +72,12 @@ add_library(stream RTKLIB/src/stream.c)
 add_library(streamsvr RTKLIB/src/streamsvr.c)
 add_library(tle RTKLIB/src/tle.c)
 
-add_executable(testRTKLIBNode 
-	src/testRTKLIBNode.cpp
-	${src_folder_cpp}
-        RTKLIB/src/ppp.c)
-target_link_libraries(testRTKLIBNode ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
-						convkml convrnx datum download ephemeris geoid ionex 
-						options ppp_ar preceph qzslex rcvraw rinex
-						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
-						stream streamsvr tle
-						) 
-target_compile_features(testRTKLIBNode PUBLIC cxx_std_14)
-
-
 add_executable(gnss_preprocessor_node 
 	src/gnss_preprocessor/gnss_preprocessor.cpp
 	${src_folder_cpp}
         RTKLIB/src/ppp.c
         )
-target_link_libraries(gnss_preprocessor_node ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
+target_link_libraries(gnss_preprocessor_node ${catkin_LIBRARIES} Eigen3::Eigen ${glog_LIBRARIES} ${GeographicLib_LIBRARIES}
 						convkml convrnx datum download ephemeris geoid ionex 
 						options ppp_ar preceph qzslex rcvraw rinex
 						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
@@ -99,79 +89,10 @@ add_executable(rosbag_generator_node
 	src/gnss_preprocessor/rosbag_generator.cpp
 	${src_folder_cpp}
 	RTKLIB/src/ppp.c)
-target_link_libraries(rosbag_generator_node ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
+target_link_libraries(rosbag_generator_node ${catkin_LIBRARIES} Eigen3::Eigen ${glog_LIBRARIES} ${gflags_LIBRARIES}  ${GeographicLib_LIBRARIES}
 						convkml convrnx datum download ephemeris geoid ionex 
 						options ppp_ar preceph qzslex rcvraw rinex
 						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
 						stream streamsvr tle
 						) 
 target_compile_features(rosbag_generator_node PUBLIC cxx_std_14)
-
-add_executable(psr_spp_node src/gnss_estimator/psr_spp.cpp)
-target_link_libraries(psr_spp_node ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
-						convkml convrnx datum download ephemeris geoid ionex 
-						options ppp_ar ppp preceph qzslex rcvraw rinex
-						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
-						stream streamsvr tle
-						) 
-target_compile_features(psr_spp_node PUBLIC cxx_std_14)
-
-
-add_executable(psr_spp_dyna_auto_node src/gnss_estimator/psr_spp_dyna_auto.cpp)
-target_link_libraries(psr_spp_dyna_auto_node ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
-						convkml convrnx datum download ephemeris geoid ionex 
-						options ppp_ar ppp preceph qzslex rcvraw rinex
-						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
-						stream streamsvr tle
-						) 
-target_compile_features(psr_spp_dyna_auto_node PUBLIC cxx_std_14)
-
-
-add_executable(psr_doppler_fusion_node 
-	src/gnss_estimator/psr_doppler_fusion.cpp
-        RTKLIB/src/lambda.cpp
-	RTKLIB/src/ppp.c)
-target_link_libraries(psr_doppler_fusion_node ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
-						convkml convrnx datum download ephemeris geoid ionex 
-						options ppp_ar preceph qzslex rcvraw rinex
-						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
-						stream streamsvr tle
-						)
-target_compile_features(psr_doppler_fusion_node PUBLIC cxx_std_14)
-
-add_executable(psr_doppler_car_rtk_node 
-	src/gnss_estimator/psr_doppler_car_rtk.cpp
-	RTKLIB/src/lambda.cpp
-	RTKLIB/src/ppp.c)
-target_link_libraries(psr_doppler_car_rtk_node ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
-						convkml convrnx datum download ephemeris geoid ionex 
-						options ppp_ar preceph qzslex rcvraw rinex
-						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
-						stream streamsvr tle
-						) 
-target_compile_features(psr_doppler_car_rtk_node PUBLIC cxx_std_14)
-
-add_executable(psr_doppler_car_rtk_dyna_node 
-	src/gnss_estimator/psr_doppler_car_rtk_dyna.cpp
-	RTKLIB/src/lambda.cpp
-	RTKLIB/src/ppp.c)
-target_link_libraries(psr_doppler_car_rtk_dyna_node ${catkin_LIBRARIES} Ceres::ceres Eigen3::Eigen ${GeographicLib_LIBRARIES}
-						convkml convrnx datum download ephemeris geoid ionex 
-						options ppp_ar preceph qzslex rcvraw rinex
-						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
-						stream streamsvr tle
-						) 
-target_compile_features(psr_doppler_car_rtk_dyna_node PUBLIC cxx_std_14)
-
-add_executable(evaluate_gps_solution_node src/evo/evaluate_gps_solution.cpp)
-target_link_libraries(evaluate_gps_solution_node 
-                        ${catkin_LIBRARIES} 
-                        Ceres::ceres
-                        Eigen3::Eigen 
-                        ${GeographicLib_LIBRARIES}
-                        ) 
-target_compile_features(evaluate_gps_solution_node PUBLIC cxx_std_14)
-
-# message dependencies
-add_dependencies(evaluate_gps_solution_node ${catkin_EXPORTED_TARGETS})
-

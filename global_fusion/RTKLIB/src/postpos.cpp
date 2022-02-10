@@ -36,14 +36,7 @@
 // google eigen
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
-#include<Eigen/Core>
-
-#include <ceres/ceres.h>
-#include <ceres/rotation.h>
-// google implements commandline flags processing.
-#include <gflags/gflags.h>
-// google loging tools
-#include <glog/logging.h>
+#include <Eigen/Core>
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud.h>
@@ -808,11 +801,6 @@ static int antpos(prcopt_t *opt, int rcvno, const obs_t *obs, const nav_t *nav,
     return 1;
 }
 
-void printFunctions(void)
-{
-    // std::cout << " in fact this is a test message"<<std::endl;
-    LOG(INFO) <<"in fact this is a test message";
-}
 /* open procssing session ----------------------------------------------------*/
 static int openses(const prcopt_t *popt, const solopt_t *sopt,
                    const filopt_t *fopt, nav_t *nav, pcvs_t *pcvs, pcvs_t *pcvr)

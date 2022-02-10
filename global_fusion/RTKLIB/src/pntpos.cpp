@@ -24,14 +24,8 @@
 // google eigen
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
-#include<Eigen/Core>
+#include <Eigen/Core>
 
-#include <ceres/ceres.h>
-#include <ceres/rotation.h>
-// google implements commandline flags processing.
-#include <gflags/gflags.h>
-// google loging tools
-#include <glog/logging.h>
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud.h>

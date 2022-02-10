@@ -31,12 +31,10 @@
 // google eigen
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
-#include<Eigen/Core>
+#include <Eigen/Core>
 
-// google implements commandline flags processing.
-#include <gflags/gflags.h>
-// google loging tools
 #include <glog/logging.h>
+
 // ros
 #include <ros/ros.h>
 /* Reference from NovAtel GNSS/INS */
@@ -52,8 +50,6 @@
 #include <thread>
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
-#include <ceres/ceres.h>
-#include <ceres/rotation.h>
 #include "../tic_toc.h"
 // allign 
 #include <message_filters/subscriber.h>
