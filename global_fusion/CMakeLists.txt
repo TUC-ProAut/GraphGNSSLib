@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   nlosExclusion
   novatel_oem7_msgs
+  message_filters
 )
 
 # Eigen
