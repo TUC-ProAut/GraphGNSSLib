@@ -4,15 +4,15 @@
     <rosparam command="load" file="$(find global_fusion)/config/frankfurt.yaml" />
 
     <!-- path of dataset -->
-    <param name="roverMeasureFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/Frankfurt_Main_Tower.obs" />
-    <param name="GLONASSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/brdc2520.16g" />
-    <param name="GalileoEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/wroc2520.16l" />
-    <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/brdc2520.16n" />
-    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/Frankfurt_Main_Tower.sp3" />
-    <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/REDU00BEL_R_20162520000_01D_SN.rnx" />
-    <param name="ionexFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/codg2520.16i" />
+    <param name="roverMeasureFile" type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/Frankfurt_Main_Tower.obs" />
+    <param name="GLONASSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/brdc2520.16g" />
+    <param name="GalileoEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/wroc2520.16l" />
+    <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/brdc2520.16n" />
+    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/Frankfurt_Main_Tower.sp3" />
+    <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/REDU00BEL_R_20162520000_01D_SN.rnx" />
+    <param name="ionexFile" type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/codg2520.16i" />
 
-    <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/rtklibResult.pos" />
+    <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/smartLoc/Frankfurt_Main_Tower/rtklibResult.pos" />
 
     <node name="gnss_preprocessor_node" pkg="global_fusion" type="gnss_preprocessor_node" output="screen" />
     
@@ -22,6 +22,6 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
 
     <!-- Rosbag recording -->
-    <node pkg="rosbag" type="record" name="rosbag_Frankfurt_Main_Tower" args="record -O $(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/Frankfurt_Main_Tower_preprocessed.bag -a"/> 
+    <node pkg="rosbag" type="record" name="rosbag_Frankfurt_Main_Tower" args="record -O $(find global_fusion)/dataset/Processed/smartLoc_Frankfurt_Main_Tower_preprocessed.bag -a"/> 
 
 </launch>

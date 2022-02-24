@@ -8,7 +8,7 @@
     <param name="baseMeasureFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/HK_2/hksc0740.20o" />
     <param name="BeiDouEmpFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/HK_2/hksc0740.20b" />
     <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/HK_2/hksc0740.20n" />
-    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/UrbanNav/HK_2/igs20966.sp3" />
+    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/UrbanNav/HK_2/ESA0MGNFIN_20200740000_01D_05M_ORB.SP3" />
     <param name="ionexFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/HK_2/igsg0740.20i" />
 
     <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/UrbanNav/HK_2/rtklibResult.pos" />
@@ -21,6 +21,6 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
 
     <!-- Rosbag recording -->
-    <node pkg="rosbag" type="record" name="rosbag_HK_2" args="record -O $(find global_fusion)/dataset/UrbanNav/HK_2/HK_2_preprocessed.bag -a"/> 
+    <node pkg="rosbag" type="record" name="rosbag_HK_2" args="record -O $(find global_fusion)/dataset/Processed/UrbanNav_HK_2_preprocessed.bag -a"/> 
 
 </launch>

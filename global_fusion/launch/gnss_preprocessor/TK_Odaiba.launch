@@ -8,7 +8,7 @@
     <param name="BeiDouEmpFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/TK_Odaiba/HKSL00HKG_R_20183530000_01D_CN.rnx" />
     <param name="QZSSEmpFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/TK_Odaiba/JFNG00CHN_R_20183530000_01D_JN.rnx" />
     <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/TK_Odaiba/hksl3530.18n" />
-    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/UrbanNav/TK_Odaiba/igs20323.sp3" />
+    <param name="SP3file" type="string" value="$(find global_fusion)/dataset/UrbanNav/TK_Odaiba/ESA0MGNFIN_20183530000_01D_05M_ORB.SP3" /> 
     <param name="ionexFile" type="string" value="$(find global_fusion)/dataset/UrbanNav/TK_Odaiba/igsg3530.18i" />
 
     <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/UrbanNav/TK_Odaiba/rtklibResult.pos" />
@@ -21,6 +21,6 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
 
     <!-- Rosbag recording -->
-    <node pkg="rosbag" type="record" name="rosbag_TK_Odaiba" args="record -O $(find global_fusion)/dataset/UrbanNav/TK_Odaiba/TK_Odaiba_preprocessed.bag -a"/> 
+    <node pkg="rosbag" type="record" name="rosbag_TK_Odaiba" args="record -O $(find global_fusion)/dataset/Processed/UrbanNav_TK_Odaiba_preprocessed.bag -a"/> 
 
 </launch>
