@@ -117,12 +117,16 @@ extern "C" {
 
 #define ENACMP      1                   /* Weisong: enable BeiDou System */
 #define ENAGLO      1                   /* Weisong: enable GLONASS System */
-#define ENAGAL      1                 /* enable GALILEO System */
+#define ENAQZS      1                   /* enable QZSS System */
+#define ENAGAL      1                   /* enable GALILEO System */
 
 
-#define RTK_FGO 0
+#define ref_hongkong_static 0
+#define ref_hongkong_dynamic 0
+#define ref_berlin 1
+#define ref_frankfurt 0
 
-#if RTK_FGO
+#if re_hongkong_static
 // TST data, evaluation for GPS solutions 2 (static)
 #define ref_lon    114.177707462258         /* Weisong: reference longitude */
 #define ref_lat    22.2999154035483         /* Weisong: reference latitude */
@@ -135,8 +139,18 @@ extern "C" {
 #define start_gps_sec 270149
 #define end_gps_sec 270306
 
-#else
+#elseif ref_hongkong_dynamic
+/** TST data, evaluation for GPS solutions (dynamic, loop) **/
+#define ref_lon    114.179000972         /* Weisong: reference longitude */
+#define ref_lat    22.3011535667        /* Weisong: reference latitude */
+#define ref_alt    6.42821512092                /* Weisong: reference altitude */
+#define station_x     -2414266.9200       /* Weisong: pose x of base station */
+#define station_y     5386768.9870        /* Weisong: pose y of base station */
+#define station_z     2407460.0310        /* Weisong: pose z of station */
+#define start_gps_sec 46701
+#define end_gps_sec 47185
 
+#elseif ref_berlin
 /** Berlin **/
 #define ref_lon    13.404954         /* reference longitude placed in Berlin */
 #define ref_lat    52.520007        /* reference latitude placed in Berlin */
@@ -147,26 +161,16 @@ extern "C" {
 #define start_gps_sec 0
 #define end_gps_sec 2703060
 
+#else
 /** Frankfurt **/
-//#define ref_lon    8.682127         /* reference longitude placed in Frankfurt */
-//#define ref_lat    50.110924        /* reference latitude placed in Frankfurt */
-//#define ref_alt    109                /* reference altitude placed in Frankfurt */
-//#define station_x     0       /* Weisong: pose x of base station (not used) */
-//#define station_y     0        /* Weisong: pose y of base station (not used) */
-//#define station_z     0        /* Weisong: pose z of station (not used) */
-//#define start_gps_sec 0
-//#define end_gps_sec 2703060
-
-/** TST data, evaluation for GPS solutions (dynamic, loop) **/
-//#define ref_lon    114.179000972         /* Weisong: reference longitude */
-//#define ref_lat    22.3011535667        /* Weisong: reference latitude */
-//#define ref_alt    6.42821512092                /* Weisong: reference altitude */
-//#define station_x     -2414266.9200       /* Weisong: pose x of base station */
-//#define station_y     5386768.9870        /* Weisong: pose y of base station */
-//#define station_z     2407460.0310        /* Weisong: pose z of station */
-//#define start_gps_sec 46701
-//#define end_gps_sec 47185
-
+#define ref_lon    8.682127         /* reference longitude placed in Frankfurt */
+#define ref_lat    50.110924        /* reference latitude placed in Frankfurt */
+#define ref_alt    109                /* reference altitude placed in Frankfurt */
+#define station_x     0       /* Weisong: pose x of base station (not used) */
+#define station_y     0        /* Weisong: pose y of base station (not used) */
+#define station_z     0        /* Weisong: pose z of station (not used) */
+#define start_gps_sec 0
+#define end_gps_sec 2703060
 
 #endif
 

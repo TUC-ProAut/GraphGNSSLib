@@ -6,7 +6,7 @@
     <!-- path of dataset -->
     <param name="roverMeasureFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/Frankfurt_Westend_Tower.obs" />
     <param name="GLONASSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/brdc2510.16g" />
-    <param name="GalileoEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/wtzz2510.16l" />
+    <param name="GalileoEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/wroc2510.16l" />
     <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/brdc2510.16n" />
     <param name="SP3file" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/Frankfurt_Westend_Tower.sp3" />
     <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Westend_Tower/REDU00BEL_R_20162510000_01D_SN.rnx" />
