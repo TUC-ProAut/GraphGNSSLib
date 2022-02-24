@@ -651,7 +651,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
 
     /* estimate receiver position with pseudorange by WLS and Eigen */
     bool haveOneBeiDou = false;
-    int CMP_cnt = 0, GPS_cnt = 0, GAL_cnt = 0, GLO_cnt = 0, SBS_cnt = 0;
+    int CMP_cnt = 0, GPS_cnt = 0, GAL_cnt = 0, GLO_cnt = 0, SBS_cnt = 0, QZS_cnt = 0;
     for(int s_i=0;s_i<n; s_i++)
     {
         nlosExclusion::GNSS_Raw gnss_raw;
@@ -719,48 +719,57 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         int sys=satsys(obs[s_i].sat,NULL);   
         if((gnss_raw.elevation*D2R)>opt_.elmin) // must be '>' to avoid publishing sats with elevation = 0
         {
-            gnss_data.GNSS_Raws.push_back(gnss_raw);
             #if 0
             std::cout << "epoch_time-> "<< epoch_time[0]<<"/"<<epoch_time[1]<<"/"<<epoch_time[2]<< " "<<epoch_time[3]<<":"<<epoch_time[4]<<":"<<epoch_time[5]<<std::endl;
             LOG(INFO) << "obs[s_i].P[0];  "<<obs[s_i].P[0];
             LOG(INFO) << "obs[s_i].L[0];  "<<obs[s_i].L[0];
             #endif
 
-            #if 1 // debug satellite iformation
             // LOG(INFO) << "obs[s_i].sat  "<<float(obs[s_i].sat);
             if(sys==SYS_GPS)
             {
                 // LOG(INFO) << "GPS Satellite  "<<current_tow;
                 GPS_cnt++;
+                gnss_raw.sat_system = "GPS";
             }
             else if(sys==SYS_CMP)
             {
                 // LOG(INFO) << "BeiDou Satellite   "<<current_tow;
                 haveOneBeiDou = true;
                 CMP_cnt++;
+                gnss_raw.sat_system = "BeiDou";
             }
             else if(sys==SYS_GAL)
             {
                 GAL_cnt++;
+                gnss_raw.sat_system = "Galileo";
             }
             else if(sys==SYS_GLO)
             {
                 GLO_cnt++;
+                gnss_raw.sat_system = "GLONASS";
             }
             else if(sys==SYS_SBS)
             {
                 SBS_cnt++;
+                gnss_raw.sat_system = "SBAS";
+            }
+            else if(sys==SYS_QZS)
+            {
+                QZS_cnt++;
+                LOG(INFO) << "QZSS Satellite sys:  "<<sys;
+                gnss_raw.sat_system = "QZSS";
             }
             else
             {
                 LOG(INFO) << "Unknow!!!!! Satellite   "<<current_tow;
             }
-            #endif
+            gnss_data.GNSS_Raws.push_back(gnss_raw);
         }
         else
         {
-            #if 0 
-            LOG(INFO)<<"The elevation angle is less than 15!!!!!";
+            LOG(INFO)<<"Elevation angle of sat prn nr. " << gnss_raw.prn_satellites_index << " is <= " << opt_.elmin << " degrees -> ignoring.";
+            #if 0
             LOG(INFO) << "obs[s_i].P[0];  "<<obs[s_i].P[0];;
             LOG(INFO) << "obs[s_i].L[0];  "<<obs[s_i].L[0];;
             #endif
@@ -773,6 +782,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     LOG(INFO) << "GAL_cnt   "<<GAL_cnt;
     LOG(INFO) << "GLO_cnt   "<<GLO_cnt;
     LOG(INFO) << "SBS_cnt   "<<SBS_cnt;
+    LOG(INFO) << "QZS_cnt   "<<QZS_cnt;
     
     pub_gnss_raw.publish(gnss_data);
     

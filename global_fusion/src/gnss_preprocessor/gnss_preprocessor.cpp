@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 
 	/* read paths for datasets specified in the launchfile */
 	FILE *file;
-	std::string roverMeasureFile, baseMeasureFile, BeiDouEmpFile, GPSEmpFile, GLONASSEmpFile, GalileoEmpFile, SP3file, SBASfile, ionexFile;
+	std::string roverMeasureFile, baseMeasureFile, BeiDouEmpFile, GPSEmpFile, GLONASSEmpFile, GalileoEmpFile, QZSSEmpFile, SP3file, SBASfile, ionexFile;
 	if (! ros::param::get("roverMeasureFile", roverMeasureFile)){
 			ROS_INFO("\033[31m----> No Rover file provided. Stopping!\033[0m");
 			return 0;
@@ -124,6 +124,20 @@ int main(int argc, char **argv)
 			}
 		}
 	}
+	if (std::find(satellites.begin(), satellites.end(), "QZSS") != satellites.end()){
+		if (! ros::param::get("QZSSEmpFile", QZSSEmpFile)){
+			ROS_INFO("\033[31m----> No QZSS file provided. Stopping!\033[0m");
+			return 0;
+		}
+		else{
+			if (file = fopen(QZSSEmpFile.c_str(), "r")) {
+				fclose(file);
+			} else {
+				ROS_INFO("\033[31m----> QZSS file not found. Stopping!\033[0m");
+				return 0;
+			}
+		}
+	}
 	if (precise_ephemeris){
 		if (! ros::param::get("SP3file", SP3file)){
 			ROS_INFO("\033[31m----> No SP3 file provided. Stopping!\033[0m");
@@ -202,6 +216,9 @@ int main(int argc, char **argv)
 	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
 		prcopt.navsys = prcopt.navsys + SYS_GAL;
 	}
+	if (std::find(satellites.begin(), satellites.end(), "QZSS") != satellites.end()){
+		prcopt.navsys = prcopt.navsys + SYS_QZS;
+	}
 	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end() && (!precise_ephemeris)){	// only use SBAS if we do not use the precise (SP3) ephemeris data
 		prcopt.navsys = prcopt.navsys + SYS_SBS;
 	}
@@ -267,6 +284,9 @@ int main(int argc, char **argv)
 	}
 	if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end()){
 		strcpy(infile[n++],strdup(GalileoEmpFile.c_str()));
+	}
+	if (std::find(satellites.begin(), satellites.end(), "QZSS") != satellites.end()){
+		strcpy(infile[n++],strdup(QZSSEmpFile.c_str()));
 	}
 	if (precise_ephemeris){
         strcpy(infile[n++],strdup(SP3file.c_str()));
