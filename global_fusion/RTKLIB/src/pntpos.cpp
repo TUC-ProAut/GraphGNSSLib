@@ -768,7 +768,8 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         }
         else
         {
-            LOG(INFO)<<"Elevation angle of sat prn nr. " << gnss_raw.prn_satellites_index << " is <= " << opt_.elmin << " degrees -> ignoring.";
+            LOG(INFO) <<"Elevation angle of sat prn nr. " << gnss_raw.prn_satellites_index  
+                      << " from sys " << sys << " is " << (gnss_raw.elevation*D2R) << " <= " << opt_.elmin << " degrees -> ignoring.";
             #if 0
             LOG(INFO) << "obs[s_i].P[0];  "<<obs[s_i].P[0];;
             LOG(INFO) << "obs[s_i].L[0];  "<<obs[s_i].L[0];;
@@ -777,12 +778,12 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         
     }
 
-    LOG(INFO) << "GPS_cnt   "<<GPS_cnt;
-    LOG(INFO) << "CMP_cnt   "<<CMP_cnt;
-    LOG(INFO) << "GAL_cnt   "<<GAL_cnt;
-    LOG(INFO) << "GLO_cnt   "<<GLO_cnt;
-    LOG(INFO) << "SBS_cnt   "<<SBS_cnt;
-    LOG(INFO) << "QZS_cnt   "<<QZS_cnt;
+    LOG(INFO) << "GPS_cnt " << "["  << SYS_GPS << "]" << "    " << GPS_cnt;
+    LOG(INFO) << "SBS_cnt " << "["  << SYS_SBS << "]" << "    " << SBS_cnt;
+    LOG(INFO) << "GLO_cnt " << "["  << SYS_GLO << "]" << "    " << GLO_cnt;
+    LOG(INFO) << "GAL_cnt " << "["  << SYS_GAL << "]" << "    " << GAL_cnt;
+    LOG(INFO) << "QZS_cnt " << "["  << SYS_QZS << "]" << "   " << QZS_cnt;
+    LOG(INFO) << "CMP_cnt " << "["  << SYS_CMP << "]" << "   " << CMP_cnt;
     
     pub_gnss_raw.publish(gnss_data);
     
