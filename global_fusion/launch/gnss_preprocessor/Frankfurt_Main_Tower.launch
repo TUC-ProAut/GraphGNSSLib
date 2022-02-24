@@ -6,10 +6,10 @@
     <!-- path of dataset -->
     <param name="roverMeasureFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/Frankfurt_Main_Tower.obs" />
     <param name="GLONASSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/brdc2520.16g" />
-    <param name="GalileoEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/wtzz2520.16l" />
+    <param name="GalileoEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/wroc2520.16l" />
     <param name="GPSEmpFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/brdc2520.16n" />
     <param name="SP3file" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/Frankfurt_Main_Tower.sp3" />
-    <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/REDU00BEL_R_20161580000_01D_SN.rnx" />
+    <param name="SBASfile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/REDU00BEL_R_20162520000_01D_SN.rnx" />
     <param name="ionexFile" type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/codg2520.16i" />
 
     <param name="out_folder"      type="string" value="$(find global_fusion)/dataset/smartLoc/RINEX/Frankfurt_Main_Tower/rtklibResult.pos" />
