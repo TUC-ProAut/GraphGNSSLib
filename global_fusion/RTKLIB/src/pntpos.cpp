@@ -734,7 +734,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
             }
             else if(sys==SYS_CMP)
             {
-                LOG(INFO) << "BeiDou Satellite   "<<current_tow;
+                // LOG(INFO) << "BeiDou Satellite   "<<current_tow;
                 haveOneBeiDou = true;
                 CMP_cnt++;
                 gnss_raw.sat_system = "BeiDou";
