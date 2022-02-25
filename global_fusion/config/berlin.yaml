@@ -7,6 +7,7 @@ soltype: 2 ## type of solution (0:forward,1:backward,2:combined)
 satellites: ## all used gnss-systems (GPS, GLONASS, Galileo, SBAS)
     - GPS
     - GLONASS
+    - SBAS
 
 precise_ephemeris: true # use precise satellite orbit solution (SP3) (true/false)
 

@@ -219,7 +219,8 @@ int main(int argc, char **argv)
 	if (std::find(satellites.begin(), satellites.end(), "QZSS") != satellites.end()){
 		prcopt.navsys = prcopt.navsys + SYS_QZS;
 	}
-	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end() && (!precise_ephemeris)){	// only use SBAS if we do not use the precise (SP3) ephemeris data
+	if (std::find(satellites.begin(), satellites.end(), "SBAS") != satellites.end())// && (!precise_ephemeris))
+        {	// only use SBAS if we do not use the precise (SP3) ephemeris data
 		prcopt.navsys = prcopt.navsys + SYS_SBS;
 	}
 	prcopt.nf = nf;						// frequency (1:L1,2:L1+L2,3:L1+L2+L5)
