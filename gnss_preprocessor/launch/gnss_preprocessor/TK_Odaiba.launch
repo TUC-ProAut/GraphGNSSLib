@@ -1,0 +1,26 @@
+<!-- Dataset TK_Odaiba from UrbanNav project. -->
+<launch>
+    <!-- load dataset-specific params -->
+    <rosparam command="load" file="$(find gnss_preprocessor)/config/tokyo.yaml" />
+
+    <!-- path of dataset -->
+    <param name="roverMeasureFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/rover_ublox.obs" />
+    <param name="BeiDouEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/HKSL00HKG_R_20183530000_01D_CN.rnx" />
+    <param name="QZSSEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/JFNG00CHN_R_20183530000_01D_JN.rnx" />
+    <param name="GPSEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/hksl3530.18n" />
+    <param name="SP3file" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/ESA0MGNFIN_20183530000_01D_05M_ORB.SP3" /> 
+    <param name="ionexFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/igsg3530.18i" />
+
+    <param name="out_folder"      type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/rtklibResult.pos" />
+
+    <node name="gnss_preprocessor_node" pkg="gnss_preprocessor" type="gnss_preprocessor_node" output="screen" />
+    
+
+    <!-- Static fake TF transform -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake" args="0 0 0 0 0 0 map base_link" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="static_tf_fake_m2w" args="0 0 0 0 0 0 map world" />
+
+    <!-- Rosbag recording -->
+    <node pkg="rosbag" type="record" name="rosbag_TK_Odaiba" args="record -O $(find gnss_preprocessor)/dataset/Processed/UrbanNav_TK_Odaiba_preprocessed.bag -a"/> 
+
+</launch>
