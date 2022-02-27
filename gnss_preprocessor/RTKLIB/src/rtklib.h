@@ -875,7 +875,6 @@ typedef struct {        /* navigation data type */
     double ion_gal[4];  /* Galileo iono model parameters {ai0,ai1,ai2,0} */
     double ion_qzs[8];  /* QZSS iono model parameters {a0,a1,a2,a3,b0,b1,b2,b3} */
     double ion_cmp[8];  /* BeiDou iono model parameters {a0,a1,a2,a3,b0,b1,b2,b3} */
-    double lam[MAXSAT][NFREQ]; /* carrier wave lengths (m) */
     double ion_irn[8];  /* IRNSS iono model parameters {a0,a1,a2,a3,b0,b1,b2,b3} */
     int glo_fcn[32];    /* GLONASS FCN + 8 */
     double cbias[MAXSAT][3]; /* satellite DCB (0:P1-P2,1:P1-C1,2:P2-C2) (m) */

@@ -1585,7 +1585,13 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
             
             gnss_raw.raw_pseudorange = obs[ir[is]].P[0];
             gnss_raw.carrier_phase = obs[ir[is]].L[0];
-            gnss_raw.lamda = nav->lam[obs[ir[is]].sat][0];
+            
+            double freq;
+            if ((freq=sat2freq(obs[is].sat,obs[is].code[0],nav)) == 0.0)
+            {
+                continue;
+            }
+            gnss_raw.lamda = CLIGHT / freq;
 
             gnss_raw.sat_clk_err = dts[0+ ir[is] * 2] * CLIGHT;
             gnss_raw.sat_pos_x = rs[0 + ir[is] * 6];
@@ -1638,14 +1644,19 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
             gnss_raw.GNSS_time = current_tow;
             gnss_raw.total_sv = float(ns); // same satellite with user end
             gnss_raw.prn_satellites_index = float(obs[ir[is]].sat);
-            gnss_raw.snr = obs[ir[is]].SNR[0] * 0.25;
+            gnss_raw.snr = obs[ir[is]].SNR[0] * 0.001;
             
 
             gnss_raw.visable = rtk->ssat[obs[ir[is]].sat-1].slip[f]; // sat=obs[i].sat;
             
             gnss_raw.raw_pseudorange = obs[ir[is]].P[0];
             gnss_raw.carrier_phase = obs[ir[is]].L[0];
-            gnss_raw.lamda = nav->lam[obs[ir[is]].sat-1][0];
+            double freq;
+            if ((freq=sat2freq(obs[is].sat,obs[is].code[0],nav)) == 0.0)
+            {
+                continue;
+            }
+            gnss_raw.lamda = CLIGHT / freq;
 
             gnss_raw.sat_clk_err = dts[0+ ir[is] * 2] * CLIGHT;
             gnss_raw.sat_pos_x = rs[0 + ir[is] * 6];

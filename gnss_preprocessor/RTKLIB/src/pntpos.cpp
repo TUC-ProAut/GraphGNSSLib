@@ -728,13 +728,21 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         }
         gnss_raw.snr = obs[s_i].SNR[0] * 0.001;
 
-        /* get satellite position*/
+        /* get satellite position */
         gnss_raw.azimuth = azel_[0 + s_i*2] * R2D;
         gnss_raw.elevation = azel_[1 + s_i*2] * R2D;
         gnss_raw.sat_pos_x = rs[0 + s_i * 6];
         gnss_raw.sat_pos_y = rs[1 + s_i * 6];
         gnss_raw.sat_pos_z = rs[2 + s_i * 6];
         
+        /* get carrier wave freq */
+        double freq;
+        if ((freq=sat2freq(obs[s_i].sat,obs[s_i].code[0],nav)) == 0.0)
+        {
+            continue;
+        }
+        gnss_raw.lamda = CLIGHT / freq;
+
         /* psudorange with code bias correction */
         double P,vmeas;
         if ((P = prange(obs+s_i,nav,&opt_,&vmeas)) == 0.0)
@@ -749,11 +757,6 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         
         /* ionospheric correction */
         if (!ionocorr(obs[s_i].time, nav, obs[s_i].sat, pos, azel_+s_i*2, opt->ionoopt, &dion, &vion)) 
-        {
-            continue;
-        }
-        double freq;
-        if ((freq=sat2freq(obs[s_i].sat,obs[s_i].code[0],nav)) == 0.0)
         {
             continue;
         }
@@ -773,7 +776,6 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         /* remove the satellite clock bias, atmosphere error here */
         gnss_raw.pseudorange = gnss_raw.raw_pseudorange + gnss_raw.sat_clk_err - dion - dtrp;
         gnss_raw.carrier_phase = obs[s_i].L[0];
-        //gnss_raw.lamda = nav->lam[obs[s_i].sat-1][0];
 
         const int sys = satsys(obs[s_i].sat,NULL);   
         if((gnss_raw.elevation*D2R) > opt_.elmin) // must be '>' to avoid publishing sats with elevation = 0
@@ -839,7 +841,11 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     LOG(INFO) << "QZS_cnt " << "["  << SYS_QZS << "]" << "   " << QZS_cnt;
     LOG(INFO) << "CMP_cnt " << "["  << SYS_CMP << "]" << "   " << CMP_cnt;
     
+    /* publish raw GNSS measurements*/
     pub_gnss_raw.publish(gnss_data);
+    
+    
+    /* TODO: remove eigen dependency in the following code */
     
     #if 1 // PNT from WLS using Eigen
     {
@@ -911,8 +917,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     
     pub_velocity_from_doppler.publish(odometry);
     #endif
-
-
+    
     #if 1
     /* Weisong: publish the solution
     *  no matter the solution is good or not

@@ -10,8 +10,9 @@
  * Date: 2020/11/27
  *******************************************************/
 
+#include "../RTKLIB/src/rtklib.h"
+
 #include <stdarg.h>
-#include "../../RTKLIB/src/rtklib.h"
 #include <ros/ros.h>
 #include <stdio.h>
 #include <assert.h>

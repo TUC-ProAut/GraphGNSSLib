@@ -70,7 +70,7 @@ add_library(tle RTKLIB/src/tle.c)
 add_library(tides RTKLIB/src/tides.c)
 
 add_executable(gnss_preprocessor_node 
-	src/gnss_preprocessor/gnss_preprocessor.cpp
+	src/gnss_preprocessor.cpp
 	${src_folder_cpp}
         RTKLIB/src/ppp.c
         )
@@ -82,14 +82,12 @@ target_link_libraries(gnss_preprocessor_node ${catkin_LIBRARIES} Eigen3::Eigen $
 						) 
 target_compile_features(gnss_preprocessor_node PUBLIC cxx_std_14)
 
-add_executable(rosbag_generator_node 
-	src/gnss_preprocessor/rosbag_generator.cpp
-	${src_folder_cpp}
-	RTKLIB/src/ppp.c)
-target_link_libraries(rosbag_generator_node ${catkin_LIBRARIES} Eigen3::Eigen ${glog_LIBRARIES} ${gflags_LIBRARIES}  ${GeographicLib_LIBRARIES}
-						convkml convrnx datum download ephemeris geoid ionex 
-						options ppp_ar preceph rcvraw rinex
-						rtcm rtcm2 rtcm3 rtcm3e rtkcmn rtksvr sbas solution
-						stream streamsvr tle tides
-						) 
-target_compile_features(rosbag_generator_node PUBLIC cxx_std_14)
+
+#############
+## Install ##
+#############
+
+install(DIRECTORY
+  launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
