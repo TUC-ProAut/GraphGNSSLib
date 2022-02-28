@@ -772,7 +772,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         gnss_raw.err_tropo = dtrp;
 
         /* get pr*/
-        gnss_raw.raw_pseudorange = obs[s_i].P[0]; // or P?
+        gnss_raw.raw_pseudorange = P;
         /* remove the satellite clock bias, atmosphere error here */
         gnss_raw.pseudorange = gnss_raw.raw_pseudorange + gnss_raw.sat_clk_err - dion - dtrp;
         gnss_raw.carrier_phase = obs[s_i].L[0];

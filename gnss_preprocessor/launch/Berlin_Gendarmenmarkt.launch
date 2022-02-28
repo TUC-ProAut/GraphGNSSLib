@@ -5,11 +5,16 @@
 
     <!-- path of dataset -->
     <param name="roverMeasureFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/Berlin_Gendarmenmarkt.obs" />
+    <param name="EmpFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/BRDC00WRD_U_20161580000_01D_MN.rnx" />
+<!--
     <param name="GLONASSEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/brdc1580.16g" />
     <param name="GPSEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/brdc1580.16n" />
+-->
     <param name="SP3File" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/gbm19001.sp3" />
+    <param name="clkFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/gbm19001.clk" />
     <param name="SBASFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/REDU00BEL_R_20161580000_01D_SN.rnx" />
-    <param name="ionexFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/codg1580.16i" />
+    <param name="ionexFile" type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/casg1580.16i" />
+    <param name="atxFile" type="string" value="$(find gnss_preprocessor)/dataset/Shared/igs14.atx" />
 
     <param name="out_folder"      type="string" value="$(find gnss_preprocessor)/dataset/smartLoc/Berlin_Gendarmenmarkt/rtklibResult.pos" />
 

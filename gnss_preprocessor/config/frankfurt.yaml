@@ -8,6 +8,7 @@ satellites: ## all used gnss-systems (GPS, GLONASS, Galileo, SBAS)
     - GPS
     - GLONASS
     - Galileo
+    - SBAS
 
 precise_ephemeris: true # use precise satellite orbit solution (SP3) (true/false)
 

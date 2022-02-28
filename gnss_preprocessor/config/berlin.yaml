@@ -7,6 +7,9 @@ soltype: 2 ## type of solution (0:forward,1:backward,2:combined)
 satellites: ## all used gnss-systems (GPS, GLONASS, Galileo, SBAS)
     - GPS
     - GLONASS
+    - SBAS
+    
+shared_ephemeris: true # use only one RINEX file for the BRDC emphemeris
 
 precise_ephemeris: true # use precise satellite orbit solution (SP3) (true/false)
 

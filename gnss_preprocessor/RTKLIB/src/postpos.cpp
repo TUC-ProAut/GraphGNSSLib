@@ -1249,8 +1249,6 @@ extern int postpos(gtime_t ts, gtime_t te, double ti, double tu,
     trace(3,"postpos : ti=%.0f tu=%.0f n=%d outfile=%s\n",ti,tu,n,outfile);
     
     /* open processing session */
-    /* pcvss: receiver antenna parameters */
-    /* pcvsr: satellite antenna parameters */
     if (!openses(popt,sopt,fopt,&navs,&pcvss,&pcvsr)) return -1;
     
     if (ts.time!=0&&te.time!=0&&tu>=0.0) {

@@ -68,8 +68,9 @@ int main(int argc, char **argv)
     /* get setup parameters from yaml config */
     int mode, nf, soltype, elevationmask;
     std::vector<std::string> satellites;
-    bool precise_ephemeris, ionex_correction, custom_atx;
+    bool shared_ephemeris, precise_ephemeris, ionex_correction, custom_atx;
     nh.getParam("/satellites", satellites);
+    nh.param("/shared_ephemeris", shared_ephemeris, false);
     nh.param("/precise_ephemeris", precise_ephemeris, false);
     nh.param("/mode",   mode, 2);
     nh.param("/nf",     nf, 2);
@@ -129,12 +130,24 @@ int main(int argc, char **argv)
         }   
     }
     
+    /* read shared ephemeris file */
+    if(shared_ephemeris)
+    {
+        if(!checkFile("EmpFile", infile[n++]))
+        {
+             return 0;   
+        }
+    }
+    
     /* GPS ephemeris */
     if (std::find(satellites.begin(), satellites.end(), "GPS") != satellites.end())
     {
-        if(!checkFile("GPSEmpFile", infile[n++]))
+        if(!shared_ephemeris)
         {
-             return 0;   
+            if(!checkFile("GPSEmpFile", infile[n++]))
+            {
+                 return 0;   
+            }
         }
         prcopt.navsys = prcopt.navsys + SYS_GPS; 
     }
@@ -142,9 +155,12 @@ int main(int argc, char **argv)
     /* GLONASS ephemeris */
     if (std::find(satellites.begin(), satellites.end(), "GLONASS") != satellites.end())
     {
-        if(!checkFile("GLONASSEmpFile", infile[n++]))
+        if(!shared_ephemeris)
         {
-             return 0;   
+            if(!checkFile("GLONASSEmpFile", infile[n++]))
+            {
+                 return 0;   
+            }
         }
         prcopt.navsys = prcopt.navsys + SYS_GLO; 
     }
@@ -152,9 +168,12 @@ int main(int argc, char **argv)
     /* BeiDou ephemeris */
     if (std::find(satellites.begin(), satellites.end(), "BeiDou") != satellites.end())
     {
-        if(!checkFile("BeiDouEmpFile", infile[n++]))
+        if(!shared_ephemeris)
         {
-             return 0;   
+            if(!checkFile("BeiDouEmpFile", infile[n++]))
+            {
+                 return 0;   
+            }
         }
         prcopt.navsys = prcopt.navsys + SYS_CMP; 
     }
@@ -162,9 +181,12 @@ int main(int argc, char **argv)
     /* Galileo ephemeris */
     if (std::find(satellites.begin(), satellites.end(), "Galileo") != satellites.end())
     {
-        if(!checkFile("GalileoEmpFile", infile[n++]))
+        if(!shared_ephemeris)
         {
-             return 0;   
+            if(!checkFile("GalileoEmpFile", infile[n++]))
+            {
+                 return 0;   
+            }
         }
         prcopt.navsys = prcopt.navsys + SYS_GAL; 
     }
@@ -172,9 +194,12 @@ int main(int argc, char **argv)
     /* QZSS ephemeris */
     if (std::find(satellites.begin(), satellites.end(), "QZSS") != satellites.end())
     {
-        if(!checkFile("QZSSEmpFile", infile[n++]))
+        if(!shared_ephemeris)
         {
-             return 0;   
+            if(!checkFile("QZSSEmpFile", infile[n++]))
+            {
+                 return 0;   
+            }
         }
         prcopt.navsys = prcopt.navsys + SYS_QZS; 
     }
