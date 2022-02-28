@@ -9,6 +9,8 @@ satellites: ## all used gnss-systems (GPS, GLONASS, Galileo, SBAS)
     - GLONASS
     - Galileo
     - SBAS
+    
+shared_ephemeris: true # use only one RINEX file for the BRDC emphemeris
 
 precise_ephemeris: true # use precise satellite orbit solution (SP3) (true/false)
 
