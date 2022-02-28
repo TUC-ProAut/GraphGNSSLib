@@ -5,11 +5,11 @@
 
     <!-- path of dataset -->
     <param name="roverMeasureFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/rover_ublox.obs" />
-    <param name="BeiDouEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/HKSL00HKG_R_20183530000_01D_CN.rnx" />
-    <param name="QZSSEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/JFNG00CHN_R_20183530000_01D_JN.rnx" />
-    <param name="GPSEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/hksl3530.18n" />
-    <param name="SP3file" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/ESA0MGNFIN_20183530000_01D_05M_ORB.SP3" /> 
-    <param name="ionexFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/igsg3530.18i" />
+    <param name="EmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/BRDC00IGS_R_20183530000_01D_MN.rnx" />
+    <param name="SP3File" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/gbm20323.sp3" /> 
+    <param name="clkFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/gbm20323.clk" /> 
+    <param name="ionexFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/casg3530.18i" />
+    <param name="atxFile" type="string" value="$(find gnss_preprocessor)/dataset/Shared/igs14.atx" />
 
     <param name="out_folder"      type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/TK_Odaiba/rtklibResult.pos" />
 

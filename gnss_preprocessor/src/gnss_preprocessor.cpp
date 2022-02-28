@@ -40,6 +40,7 @@ bool checkFile(const std::string &ParamName, char * FileNamePointer)
         } 
         else 
         {
+            ROS_INFO("%s: %s", ParamName.c_str() ,FileName.c_str());
             ROS_INFO("\033[31m----> File %s not found. Stopping!\033[0m", ParamName.c_str());
             return false;
         }

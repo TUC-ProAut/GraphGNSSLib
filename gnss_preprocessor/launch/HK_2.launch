@@ -6,10 +6,11 @@
     <!-- path of dataset -->
     <param name="roverMeasureFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/COM55_200314_084357.obs" />
     <param name="baseMeasureFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/hksc0740.20o" />
-    <param name="BeiDouEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/hksc0740.20b" />
-    <param name="GPSEmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/hksc0740.20n" />
-    <param name="SP3file" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/ESA0MGNFIN_20200740000_01D_05M_ORB.SP3" />
-    <param name="ionexFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/igsg0740.20i" />
+    <param name="EmpFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/BRDM00DLR_S_20200740000_01D_MN.rnx" />
+    <param name="SP3File" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/GFZ0MGXRAP_20200740000_01D_05M_ORB.SP3" />
+    <param name="clkFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/GFZ0MGXRAP_20200740000_01D_30S_CLK.CLK" />
+    <param name="ionexFile" type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/casg0740.20i" />
+    <param name="atxFile" type="string" value="$(find gnss_preprocessor)/dataset/Shared/igs14.atx" />
 
     <param name="out_folder"      type="string" value="$(find gnss_preprocessor)/dataset/UrbanNav/HK_2/rtklibResult.pos" />
 
