@@ -11,6 +11,8 @@ satellites: ## all used gnss-systems (GPS, GLONASS, Galileo, SBAS)
 
 precise_ephemeris: true # use precise satellite orbit solution (SP3) (true/false)
 
-ionosphere_correction: 5 # (0: off, 1: broadcast, 2: SBAS , 5: IONEX TEC)
+ionex_correction: true # use a IONEX TEC correction file
+
+custom_atx: true # use an updated antenna file e.g. igs14.atx (true/false)
 
 elevationmask: 0 ## min. elevation of satellites to be used in deg
