@@ -313,26 +313,13 @@ static int rescode(int iter, const obsd_t *obs, int n, const double *rs,
         if (i<n-1&&i<MAXOBS-1&&sat==obs[i+1].sat) {
             trace(2,"duplicated obs data %s sat=%d\n",time_str(time,3),sat);
             i++;
-            LOG(INFO) <<"duplicated observation data!!!!!!!!!!";
+            LOG(INFO) <<"duplicated observation data " << time_str(time,3) << " sys = " << satsys(sat,NULL)  << " sat = " << sat;
             continue;
         }
-        /* geometric distance/azimuth/elevation angle */
-        if ((r=geodist(rs+i*6,rr,e))<=0.0||
-            satazel(pos,e,azel+i*2)<opt->elmin) continue;
-        
-        /* psudorange with code bias correction */
-        if ((P=prange(obs+i,nav,opt,&vmeas))==0.0) continue;
-        // P = obs[i].P[0];
-
-        // printf("original pseudorange P0 %f \n", obs[i].P[0]);
-        // printf("original pseudorange P1 %f \n", obs[i].P[1]);
-        // printf("original pseudorange P2 %f \n", obs[i].P[2]);
-        // printf("corrected pseudorange P %f \n", P);
-        
         /* excluded satellite? */
         if (satexclude(sat,vare[i],svh[i],opt))
         {
-            LOG(INFO) <<"exclude satellite!!!!!!!!!!";
+            LOG(INFO) <<"exclude satellite" << " sys = " << satsys(sat,NULL)  << " sat = " << sat;
             continue;
         }
         
@@ -772,9 +759,9 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         gnss_raw.err_tropo = dtrp;
 
         /* get pr*/
-        gnss_raw.raw_pseudorange = P;
+        gnss_raw.raw_pseudorange = obs[s_i].P[0];
         /* remove the satellite clock bias, atmosphere error here */
-        gnss_raw.pseudorange = gnss_raw.raw_pseudorange + gnss_raw.sat_clk_err - dion - dtrp;
+        gnss_raw.pseudorange = P + gnss_raw.sat_clk_err - dion - dtrp;
         gnss_raw.carrier_phase = obs[s_i].L[0];
 
         const int sys = satsys(obs[s_i].sat,NULL);   
