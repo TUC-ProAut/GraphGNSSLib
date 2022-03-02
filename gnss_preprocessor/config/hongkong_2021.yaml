@@ -1,0 +1,22 @@
+mode: 0 ## GNSS positioning mode, 0: single, 1:DGPS/DGNSS, 2: kinematic
+
+frequency: 1 ## number of frequency (1:L1,2:L1+L2,3:L1+L2+L5)
+
+soltype: 2 ## type of solution (0:forward,1:backward,2:combined)
+
+satellites: ## all used gnss-systems (GPS, GLONASS, Galileo, SBAS)
+    - GPS
+    - GLONASS
+    - Galileo
+    - BeiDou
+    - QZSS
+
+shared_ephemeris: true # use only one RINEX file for the BRDC emphemeris
+
+precise_ephemeris: true # use precise satellite orbit solution (SP3) (true/false)
+
+ionex_correction: true # use a IONEX TEC correction file
+
+custom_atx: true # use an updated antenna file e.g. igs14.atx (true/false)
+
+elevationmask: 0 ## min. elevation of satellites to be used in deg
