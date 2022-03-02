@@ -224,10 +224,6 @@ int main(int argc, char **argv)
         {
              return 0;   
         }
-        if(!checkFile("clkFile", infile[n++]))
-        {
-             n--;
-        }
         prcopt.sateph = EPHOPT_PREC;
     }
 

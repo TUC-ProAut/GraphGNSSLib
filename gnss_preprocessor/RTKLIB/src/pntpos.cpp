@@ -317,11 +317,7 @@ static int rescode(int iter, const obsd_t *obs, int n, const double *rs,
             continue;
         }
         /* excluded satellite? */
-        if (satexclude(sat,vare[i],svh[i],opt))
-        {
-            LOG(INFO) <<"exclude satellite" << " sys = " << satsys(sat,NULL)  << " sat = " << sat;
-            continue;
-        }
+        if (satexclude(sat,vare[i],svh[i],opt)) continue;
         
         /* geometric distance */
         if ((r=geodist(rs+i*6,rr,e))<=0.0) continue;
