@@ -709,7 +709,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
                 break;
             }
         }
-        gnss_raw.snr = obs[s_i].SNR[0] * 0.001;
+        gnss_raw.snr = obs[s_i].SNR[0] * SNR_UNIT;
 
         /* get satellite position */
         gnss_raw.azimuth = azel_[0 + s_i*2] * R2D;
