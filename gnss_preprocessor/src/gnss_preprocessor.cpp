@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     {
         for (int m = 0; m < nf; m++)
         {
-            prcopt.snrmask.mask[m][n] = 18.0;
+            prcopt.snrmask.mask[m][n] = 15.0;
         }
     }
     

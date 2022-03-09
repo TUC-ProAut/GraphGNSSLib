@@ -679,36 +679,40 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     /* construct data for WLS with gnss_msgs::GNSS_Raw_Array*/
     gnss_msgs::GNSS_Raw_Array gnss_data;
     int current_week = 0;
-    double current_tow = time2gpst(obs[0].time, &current_week);
-    double epoch_time[100];
-    time2epoch(obs[0].time, epoch_time);
+    const double current_tow = time2gpst(obs[0].time, &current_week);
+    const double gpstime = current_week * 86400 * 7 + current_tow;    // GPS time in seconds from start of GPS epoch inclusive leap seconds (86400 = sec per day)
 
     /* satellite positons, velocities and clocks */
     satposs(sol->time,obs,n,nav,opt_.sateph,rs,dts,var,svh);
     
     /* estimate receiver position with pseudorange */
+    double pos[3];
     stat = estpos(obs,n,rs,dts,var,svh,nav,&opt_,sol,azel_,vsat,resp,msg);
+    ecef2pos(sol->rr,pos);
+    
+    /* limit negative altitude to reduce impact of NLOS */
+    pos[2] = std::max(pos[2], -100.0);
 
     /* estimate receiver position with pseudorange by WLS and Eigen */
     int CMP_cnt = 0, GPS_cnt = 0, GAL_cnt = 0, GLO_cnt = 0, SBS_cnt = 0, QZS_cnt = 0;
     for(int s_i = 0; s_i < n; s_i++)
     {
+        /* create GNSS message */
         gnss_msgs::GNSS_Raw gnss_raw;
-        const double gpstime = current_week * 86400 * 7 + current_tow;    // GPS time in seconds from start of GPS epoch inclusive leap seconds (86400 = sec per day)
+        
+        /* set time */
         gnss_raw.GNSS_time = gpstime;
-        gnss_raw.total_sv = float(n);
-        gnss_raw.prn_satellites_index = float(obs[s_i].sat);
+        
+        /* number of satellites */
+        gnss_raw.total_sv = int(n);
+        
+        /* PRN of this satellite */
+        gnss_raw.prn_satellites_index = int(obs[s_i].sat);
+        
+        /* excluded satellite? */
+        gnss_raw.valid = (satexclude(obs[s_i].sat,var[s_i],svh[s_i],&opt_) == 0);
         
         /* get snr*/
-        double snr = 0;
-        for (int j = 0; j < NFREQ; j++)
-        {
-            snr = 0.0;
-            if ((snr=obs[s_i].SNR[j]) != 0.0)
-            {
-                break;
-            }
-        }
         gnss_raw.snr = obs[s_i].SNR[0] * SNR_UNIT;
 
         /* get satellite position */
@@ -726,7 +730,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         }
         gnss_raw.lamda = CLIGHT / freq;
 
-        /* psudorange with code bias correction */
+        /* pseudorange with code bias correction */
         double P,vmeas;
         if ((P = prange(obs+s_i,nav,&opt_,&vmeas)) == 0.0)
         {
@@ -734,11 +738,8 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         }
         gnss_raw.sat_clk_err = dts[s_i*2] * CLIGHT; // in meter
         
-        /* atmospheric correction require ego-position*/        
-        double dion,dtrp,vion,vtrp,pos[3];
-        ecef2pos(sol->rr,pos);
-        
         /* ionospheric correction */
+        double dion, vion;
         if (!ionocorr(obs[s_i].time, nav, obs[s_i].sat, pos, azel_+s_i*2, opt->ionoopt, &dion, &vion)) 
         {
             continue;
@@ -748,6 +749,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         gnss_raw.err_iono = dion;
         
         /* tropospheric correction */
+        double dtrp, vtrp;
         if (!tropcorr(obs[s_i].time, nav, pos, azel_+s_i*2, opt->tropopt, &dtrp, &vtrp))
         {
             continue;
@@ -756,6 +758,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
 
         /* get pr*/
         gnss_raw.raw_pseudorange = obs[s_i].P[0];
+        
         /* remove the satellite clock bias, atmosphere error here */
         gnss_raw.pseudorange = P + gnss_raw.sat_clk_err - dion - dtrp;
         gnss_raw.carrier_phase = obs[s_i].L[0];
@@ -763,12 +766,6 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         const int sys = satsys(obs[s_i].sat,NULL);   
         if((gnss_raw.elevation*D2R) > opt_.elmin) // must be '>' to avoid publishing sats with elevation = 0
         {
-            #if 0
-            std::cout << "epoch_time-> "<< epoch_time[0]<<"/"<<epoch_time[1]<<"/"<<epoch_time[2]<< " "<<epoch_time[3]<<":"<<epoch_time[4]<<":"<<epoch_time[5]<<std::endl;
-            LOG(INFO) << "obs[s_i].P[0];  "<<obs[s_i].P[0];
-            LOG(INFO) << "obs[s_i].L[0];  "<<obs[s_i].L[0];
-            #endif
-
             if(sys==SYS_GPS)
             {
                 GPS_cnt++;
@@ -810,10 +807,6 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
             LOG(INFO) <<"Elevation angle of sat prn nr. " << gnss_raw.prn_satellites_index  
                       << " from sys " << sys << " is " << (gnss_raw.elevation*D2R) 
                       << " <= " << opt_.elmin << " degrees -> ignoring.";
-            #if 0
-            LOG(INFO) << "obs[s_i].P[0];  "<<obs[s_i].P[0];
-            LOG(INFO) << "obs[s_i].L[0];  "<<obs[s_i].L[0];
-            #endif
         }
     }
 
@@ -900,6 +893,8 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     
     pub_velocity_from_doppler.publish(odometry);
     #endif
+    
+    /* TODO: change to sensor_msgs/NavSatFix */
     
     #if 1
     /* Weisong: publish the solution
