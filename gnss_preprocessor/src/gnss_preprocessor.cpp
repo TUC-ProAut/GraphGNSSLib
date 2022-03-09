@@ -99,6 +99,17 @@ int main(int argc, char **argv)
     prcopt.sateph = EPHOPT_BRDC;        // default ephemeris
     prcopt.modear = 3;                  // AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold)
     
+    /* SNR mask is only for robust position estimation */
+    prcopt.snrmask.ena[0] = 1;
+    prcopt.snrmask.ena[1] = 1;
+    for (int n = 0; n < 9; n++)
+    {
+        for (int m = 0; m < nf; m++)
+        {
+            prcopt.snrmask.mask[m][n] = 18.0;
+        }
+    }
+    
     /* if you use the RTK mode, specify the position of the station (only used by RTKLIB)
      * following is an example position of the base HKSC in Hong Kong */
     prcopt.rb[0] = -2414266.9197;           // base position for relative mode {x,y,z} (ecef) (m)
