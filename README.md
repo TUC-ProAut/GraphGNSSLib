@@ -1,10 +1,9 @@
 # gnss_converter
-### An Open-source ROS Package for GNSS preprocessing
+### An Open-source ROS Package for GNSS Preprocessing
 
-This package contains a simple RINEX-to-Rosbag converter written in C++. It decodes observations from a multi-constellation GNSS receiver and augments them with ephemeris, atmospheric corrections and the individual satellite clock bias.
+This ROS package contains a simple RINEX-to-Rosbag converter written in C++. It decodes observations from a multi-constellation GNSS receiver and augments them with ephemeris, atmospheric corrections and the individual satellite clock bias.
 
 Please not that this repository holds just a stripped-down version [GraphGNSSLib](https://github.com/weisongwen/GraphGNSSLib), which provides a full factor graph back-end. We created this fork for a simpler maintainability of the GNSS preprocessor.
-
 
 
 ## 1. Install Dependencies
