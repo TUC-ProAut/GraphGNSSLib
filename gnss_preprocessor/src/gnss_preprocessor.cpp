@@ -11,13 +11,8 @@
  *******************************************************/
 
 #include "../RTKLIB/src/rtklib.h"
-
-#include <stdarg.h>
 #include <ros/ros.h>
-#include <stdio.h>
-#include <assert.h>
 
-extern void postposRegisterPub(ros::NodeHandle &n);
 extern void rtkposRegisterPub(ros::NodeHandle &n);
 extern void pntposRegisterPub(ros::NodeHandle &n);
 
@@ -62,7 +57,6 @@ int main(int argc, char **argv)
     ROS_INFO("\033[1;32m----> gnss_preprocessor Started.\033[0m");
     
     /* input node handle */
-    postposRegisterPub(nh);
     rtkposRegisterPub(nh);
     pntposRegisterPub(nh);
 

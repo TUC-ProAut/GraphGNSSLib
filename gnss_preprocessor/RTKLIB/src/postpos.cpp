@@ -46,46 +46,13 @@
 *-----------------------------------------------------------------------------*/
 #include "rtklib.h"
 
-// add by weisong
-#include <algorithm>
-// google eigen
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
-#include <Eigen/Core>
-
 #include <ros/ros.h>
-#include <sensor_msgs/PointCloud.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
-#include <nav_msgs/Path.h>
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/PointStamped.h>
-#include <novatel_oem7_msgs/INSPVAX.h> // novatel_oem7_msgs/INSPVAX
-#include <novatel_oem7_msgs/BESTPOS.h> // novatel_oem7_msgs/INSPVAX
-
-
-static const char rcsid[]="$Id: postpos.c,v 1.1 2008/07/17 21:48:06 ttaka Exp $";
 
 #define MIN(x,y)    ((x)<(y)?(x):(y))
 #define SQRT(x)     ((x)<=0.0||(x)!=(x)?0.0:sqrt(x))
 
 #define MAXPRCDAYS  100          /* max days of continuous processing */
 #define MAXINFILE   1000         /* max number of input files */
-
-class postpos_class
-{
-public:
-    postpos_class()
-    {
-        std::cout <<"construction function" << std::endl;
-    }
-
-    ~postpos_class()
-    {
-
-    }
-
-};
 
 /* constants/global variables ------------------------------------------------*/
 
@@ -114,22 +81,12 @@ static char rtcm_path[1024]=""; /* rtcm data path */
 static rtcm_t rtcm;             /* rtcm control struct */
 static FILE *fp_rtcm=NULL;      /* rtcm data file pointer */
 
-ros::Publisher pub_postpos_odometry;
-
-
-extern void postposRegisterPub(ros::NodeHandle &n)
-{
-    pub_postpos_odometry = n.advertise<nav_msgs::Odometry>("postpos_odometry", 1000);
-
-}
-
 extern void wait(int seconds)
 {
     clock_t endwait;
     endwait = clock() + seconds * CLOCKS_PER_SEC;
     while (clock() < endwait) {}
 }
-
 
 /* show message and check break ----------------------------------------------*/
 static int checkbrk(const char *format, ...)
@@ -395,7 +352,6 @@ static void procpos(FILE *fp, const prcopt_t *popt, const solopt_t *sopt,
     rtkinit(&rtk,popt);
     rtcm_path[0]='\0';
     
-    // LOG(INFO)<<"--------------start rtkpos--------------";wait(2);
     ROS_INFO("\033[1;32m----> start rtkpos.\033[0m");wait(2);
     while ((nobs=inputobs(obs,rtk.sol.stat,popt))>=0) {
         
@@ -963,8 +919,6 @@ static int execses(gtime_t ts, gtime_t te, double ti, const prcopt_t *popt,
     const char *ext;
     
     trace(3,"execses : n=%d outfile=%s\n",n,outfile);
-
-    // showmsg("---------------------------------------------");wait(5);
     
     /* open debug trace */
     if (flag&&sopt->trace>0) {
@@ -996,7 +950,6 @@ static int execses(gtime_t ts, gtime_t te, double ti, const prcopt_t *popt,
         }
     }
     /* read obs and nav data */
-    // LOG(INFO)<<"--------------start readobsnav--------------";wait(2);
     ROS_INFO("\033[1;32m----> start readobsnav.\033[0m");wait(2);
     if (!readobsnav(ts,te,ti,infile,index,n,&popt_,&obss,&navs,stas)) return 0;
     
@@ -1043,7 +996,6 @@ static int execses(gtime_t ts, gtime_t te, double ti, const prcopt_t *popt,
     
     if (popt_.mode==PMODE_SINGLE||popt_.soltype==0) {
         if ((fp=openfile(outfile))) {
-            // LOG(INFO)<<"--------------start procpos--------------";wait(2);
             ROS_INFO("\033[1;32m----> start procpos.\033[0m");wait(2);
             procpos(fp,&popt_,sopt,0); /* forward */
             fclose(fp);

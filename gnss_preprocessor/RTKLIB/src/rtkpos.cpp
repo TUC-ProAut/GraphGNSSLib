@@ -50,33 +50,11 @@
 #include <stdarg.h>
 #include "rtklib.h"
 
-// add by weisong
-#include <algorithm>
-// google eigen
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
-#include <Eigen/Core>
-
-#include <glog/logging.h>
-
 #include <ros/ros.h>
-#include <sensor_msgs/PointCloud.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
-#include <nav_msgs/Path.h>
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/PointStamped.h>
-#include <novatel_oem7_msgs/INSPVAX.h> // novatel_oem7_msgs/INSPVAX
-#include <novatel_oem7_msgs/BESTPOS.h> // novatel_oem7_msgs/INSPVAX
-
 #include <gnss_msgs/GNSS_Raw_Array.h>
 #include <gnss_msgs/GNSS_Raw.h>
-#include "../../include/gnss_tools.h"
-
-static const char rcsid[]="$Id:$";
 
 #define delayms 200 // 200
-// #define delayms 1000
 
 /* constants/macros ----------------------------------------------------------*/
 
@@ -123,15 +101,11 @@ static FILE *fp_stat=NULL;       /* rtk status file pointer */
 static char file_stat[1024]="";  /* rtk status file original path */
 static gtime_t time_stat={0};    /* rtk status file time */
 
-ros::Publisher pub_rtkpos_odometry_float,pub_rtkpos_odometry_integer;
 ros::Publisher pub_station_raw;
-GNSS_Tools m_GNSS_Tools_rtkpos; // utilities
 
 extern void rtkposRegisterPub(ros::NodeHandle &n)
 {
-    pub_rtkpos_odometry_float = n.advertise<nav_msgs::Odometry>("ENUFloatRTK", 1000); // rtk_float_odometry
-    pub_rtkpos_odometry_integer = n.advertise<nav_msgs::Odometry>("ENUIntegerRTK", 1000); //rtk_integer_odometry
-    pub_station_raw = n.advertise<gnss_msgs::GNSS_Raw_Array>("GNSSPsrCarStation1", 1000);
+    pub_station_raw = n.advertise<gnss_msgs::GNSS_Raw_Array>("gnss_raw_base", 1000);
 }
 
 /* open solution status file ---------------------------------------------------
@@ -1542,70 +1516,10 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
         free(freq);
         return 0;
     }
-    LOG(INFO) <<"number of common satellite-> "<<ns;
+    ROS_INFO_STREAM("number of common satellite-> " << ns);
     double epoch_time[100];
     time2epoch(obs[nu].time, epoch_time);
     std::cout << "epoch_time-> "<< epoch_time[0]<<"/"<<epoch_time[1]<<"/"<<epoch_time[2]<< " "<<epoch_time[3]<<":"<<epoch_time[4]<<":"<<epoch_time[5]<<std::endl;
-    
-    #if 0
-    gnss_msgs::GNSS_Raw_Array gnss_data; // station data to be published
-    int current_week;
-    double current_tow;
-    current_tow = time2gpst(obs[nu].time, &current_week);
-    for(int is=0; is<ns; is++) 
-    {
-        // LOG(INFO) <<"satellite system-> "<<satsys(sat[is], NULL);
-        // LOG(INFO) <<"iu[is]->  "<<iu[is] <<"  satid-> "<<float(obs[iu[is]].sat);
-        // LOG(INFO) <<"obs[iu[is]].L[0]->  "<<obs[iu[is]].L[0];
-        // LOG(INFO) <<"obs[iu[is]].L[1]->  "<<obs[iu[is]].L[1];
-        // LOG(INFO) <<"obs[iu[is]].L[2]->  "<<obs[iu[is]].L[2];
-        // LOG(INFO) <<"obs[iu[is]].P[0]->  "<<obs[iu[is]].P[0];
-        // LOG(INFO) <<"obs[iu[is]].P[1]->  "<<obs[iu[is]].P[1];
-        // LOG(INFO) <<"obs[iu[is]].P[2]->  "<<obs[iu[is]].P[2];
-        // LOG(INFO) <<"\n";
-        // LOG(INFO) <<"ir[is]->  "<<ir[is]<<"  satid-> "<<float(obs[ir[is]].sat);
-        // LOG(INFO) <<"obs[ir[is]].L[0]->  "<<obs[ir[is]].L[0];
-        // LOG(INFO) <<"obs[ir[is]].L[1]->  "<<obs[ir[is]].L[1];
-        // LOG(INFO) <<"obs[ir[is]].L[2]->  "<<obs[ir[is]].L[2];
-        // LOG(INFO) <<"obs[ir[is]].P[0]->  "<<obs[ir[is]].P[0];
-        // LOG(INFO) <<"obs[ir[is]].P[1]->  "<<obs[ir[is]].P[1];
-        // LOG(INFO) <<"obs[ir[is]].P[2]->  "<<obs[ir[is]].P[2];
-        // LOG(INFO) <<"\n";
-        /* tranverse observation measurements*/
-        // if(is>=nu)
-        {
-            gnss_msgs::GNSS_Raw gnss_raw;
-            gnss_raw.GNSS_time = current_tow;
-            gnss_raw.total_sv = float(ns); // same satellite with user end
-            gnss_raw.prn_satellites_index = float(obs[ir[is]].sat);
-            gnss_raw.snr = obs[ir[is]].SNR[0] * 0.001;
-            gnss_raw.azimuth = 0;
-            gnss_raw.elevation = 0;
-
-            
-            gnss_raw.raw_pseudorange = obs[ir[is]].P[0];
-            gnss_raw.carrier_phase = obs[ir[is]].L[0];
-            
-            double freq;
-            if ((freq=sat2freq(obs[is].sat,obs[is].code[0],nav)) == 0.0)
-            {
-                continue;
-            }
-            gnss_raw.lamda = CLIGHT / freq;
-
-            gnss_raw.sat_clk_err = dts[0+ ir[is] * 2] * CLIGHT;
-            gnss_raw.sat_pos_x = rs[0 + ir[is] * 6];
-            gnss_raw.sat_pos_y = rs[1 + ir[is] * 6];
-            gnss_raw.sat_pos_z = rs[2 + ir[is] * 6];
-
-            gnss_raw.pseudorange = obs[ir[is]].P[0];
-            gnss_raw.pseudorange = gnss_raw.pseudorange + gnss_raw.sat_clk_err;
-            gnss_data.GNSS_Raws.push_back(gnss_raw);
-        }
-        
-    }
-    pub_station_raw.publish(gnss_data);
-    #endif
 
     /* temporal update of states
      * cycle slip detection can also be done here.
@@ -1613,78 +1527,55 @@ static int relpos(rtk_t *rtk, const obsd_t *obs, int nu, int nr,
     udstate(rtk,obs,sat,iu,ir,ns,nav);
     // rtk->ssat[sat-1].slip[f]
 
-    #if 1
     gnss_msgs::GNSS_Raw_Array gnss_data; // station data to be published
     int current_week;
     double current_tow;
     current_tow = time2gpst(obs[nu].time, &current_week);
     for(int is=0; is<ns; is++) 
     {
-        // LOG(INFO) <<"satellite system-> "<<satsys(sat[is], NULL);
-        // LOG(INFO) <<"iu[is]->  "<<iu[is] <<"  satid-> "<<float(obs[iu[is]].sat);
-        // LOG(INFO) <<"obs[iu[is]].L[0]->  "<<obs[iu[is]].L[0];
-        // LOG(INFO) <<"obs[iu[is]].L[1]->  "<<obs[iu[is]].L[1];
-        // LOG(INFO) <<"obs[iu[is]].L[2]->  "<<obs[iu[is]].L[2];
-        // LOG(INFO) <<"obs[iu[is]].P[0]->  "<<obs[iu[is]].P[0];
-        // LOG(INFO) <<"obs[iu[is]].P[1]->  "<<obs[iu[is]].P[1];
-        // LOG(INFO) <<"obs[iu[is]].P[2]->  "<<obs[iu[is]].P[2];
-        // LOG(INFO) <<"\n";
-        // LOG(INFO) <<"ir[is]->  "<<ir[is]<<"  satid-> "<<float(obs[ir[is]].sat);
-        // LOG(INFO) <<"obs[ir[is]].L[0]->  "<<obs[ir[is]].L[0];
-        // LOG(INFO) <<"obs[ir[is]].L[1]->  "<<obs[ir[is]].L[1];
-        // LOG(INFO) <<"obs[ir[is]].L[2]->  "<<obs[ir[is]].L[2];
-        // LOG(INFO) <<"obs[ir[is]].P[0]->  "<<obs[ir[is]].P[0];
-        // LOG(INFO) <<"obs[ir[is]].P[1]->  "<<obs[ir[is]].P[1];
-        // LOG(INFO) <<"obs[ir[is]].P[2]->  "<<obs[ir[is]].P[2];
-        // LOG(INFO) <<"\n";
-        /* tranverse observation measurements*/
-        // if(is>=nu)
+        gnss_msgs::GNSS_Raw gnss_raw;
+        gnss_raw.GNSS_time = current_tow;
+        gnss_raw.total_sv = float(ns); // same satellite with user end
+        gnss_raw.prn_satellites_index = float(obs[ir[is]].sat);
+        gnss_raw.snr = obs[ir[is]].SNR[0] * 0.001;
+        
+
+        gnss_raw.visable = rtk->ssat[obs[ir[is]].sat-1].slip[f]; // sat=obs[i].sat;
+        
+        gnss_raw.raw_pseudorange = obs[ir[is]].P[0];
+        gnss_raw.carrier_phase = obs[ir[is]].L[0];
+        double freq;
+        if ((freq=sat2freq(obs[is].sat,obs[is].code[0],nav)) == 0.0)
         {
-            gnss_msgs::GNSS_Raw gnss_raw;
-            gnss_raw.GNSS_time = current_tow;
-            gnss_raw.total_sv = float(ns); // same satellite with user end
-            gnss_raw.prn_satellites_index = float(obs[ir[is]].sat);
-            gnss_raw.snr = obs[ir[is]].SNR[0] * 0.001;
-            
-
-            gnss_raw.visable = rtk->ssat[obs[ir[is]].sat-1].slip[f]; // sat=obs[i].sat;
-            
-            gnss_raw.raw_pseudorange = obs[ir[is]].P[0];
-            gnss_raw.carrier_phase = obs[ir[is]].L[0];
-            double freq;
-            if ((freq=sat2freq(obs[is].sat,obs[is].code[0],nav)) == 0.0)
-            {
-                continue;
-            }
-            gnss_raw.lamda = CLIGHT / freq;
-
-            gnss_raw.sat_clk_err = dts[0+ ir[is] * 2] * CLIGHT;
-            gnss_raw.sat_pos_x = rs[0 + ir[is] * 6];
-            gnss_raw.sat_pos_y = rs[1 + ir[is] * 6];
-            gnss_raw.sat_pos_z = rs[2 + ir[is] * 6];
-
-            double rs[3] = {gnss_raw.sat_pos_x, gnss_raw.sat_pos_y,gnss_raw.sat_pos_z};
-            double rr[3] = {station_x,station_y,station_z};
-            double e[3]={0};
-            double r = geodist(rs,rr,e);
-            double pos[3] = {0};
-            double azel[3] = {0};
-            ecef2pos(rr,pos);
-            satazel(pos, e,azel);
-            // LOG(INFO)<<"azel->--------------------- "<<azel[0] * R2D;
-            // LOG(INFO)<<"azel->-------------------- "<<azel[1] * R2D;
-
-            gnss_raw.azimuth = azel[0] * R2D;
-            gnss_raw.elevation = azel[1] * R2D;
-
-            gnss_raw.pseudorange = obs[ir[is]].P[0];
-            gnss_raw.pseudorange = gnss_raw.pseudorange + gnss_raw.sat_clk_err;
-            gnss_data.GNSS_Raws.push_back(gnss_raw);
+            continue;
         }
+        gnss_raw.lamda = CLIGHT / freq;
+
+        gnss_raw.sat_clk_err = dts[0+ ir[is] * 2] * CLIGHT;
+        gnss_raw.sat_pos_x = rs[0 + ir[is] * 6];
+        gnss_raw.sat_pos_y = rs[1 + ir[is] * 6];
+        gnss_raw.sat_pos_z = rs[2 + ir[is] * 6];
+
+        double rs[3] = {gnss_raw.sat_pos_x, gnss_raw.sat_pos_y,gnss_raw.sat_pos_z};
+        double rr[3] = {station_x,station_y,station_z};
+        double e[3]={0};
+        double r = geodist(rs,rr,e);
+        double pos[3] = {0};
+        double azel[3] = {0};
+        ecef2pos(rr,pos);
+        satazel(pos, e,azel);
+        // LOG(INFO)<<"azel->--------------------- "<<azel[0] * R2D;
+        // LOG(INFO)<<"azel->-------------------- "<<azel[1] * R2D;
+
+        gnss_raw.azimuth = azel[0] * R2D;
+        gnss_raw.elevation = azel[1] * R2D;
+
+        gnss_raw.pseudorange = obs[ir[is]].P[0];
+        gnss_raw.pseudorange = gnss_raw.pseudorange + gnss_raw.sat_clk_err;
+        gnss_data.GNSS_Raws.push_back(gnss_raw);
         
     }
     pub_station_raw.publish(gnss_data);
-    #endif
     
     trace(4,"x(0)="); tracemat(4,rtk->x,1,NR(opt),13,4);
     

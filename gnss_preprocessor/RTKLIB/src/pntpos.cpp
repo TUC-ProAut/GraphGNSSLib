@@ -26,34 +26,13 @@
 *-----------------------------------------------------------------------------*/
 #include "rtklib.h"
 
-// add by weisong
-#include <algorithm>
-// google eigen
-#include <Eigen/Eigen>
-#include <Eigen/Dense>
-#include <Eigen/Core>
-
-
 #include <ros/ros.h>
-#include <sensor_msgs/PointCloud.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
-#include <nav_msgs/Path.h>
-#include <nav_msgs/Odometry.h>
-#include <geometry_msgs/PointStamped.h>
-#include <novatel_oem7_msgs/INSPVAX.h> // novatel_oem7_msgs/INSPVAX
-#include <novatel_oem7_msgs/BESTPOS.h> // novatel_oem7_msgs/INSPVAX
-
-#include "../../include/gnss_tools.h"
-#include <gnss_msgs/GNSS_Raw_Array.h>
+#include <geometry_msgs/TwistStamped.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <gnss_msgs/GNSS_Raw.h>
+#include <gnss_msgs/GNSS_Raw_Array.h>
 
-FILE* gnss_ublox_wls = fopen("gnss_ublox_wls.csv", "w+");
-
-
-static const char rcsid[]="$Id:$";
-
-/* constants -----------------------------------------------------------------*/
+/* constants/macros ----------------------------------------------------------*/
 
 #define SQR(x)      ((x)*(x))
 
@@ -71,22 +50,16 @@ static const char rcsid[]="$Id:$";
 #define REL_HUMI    0.7         /* relative humidity for Saastamoinen model */
 #define MIN_EL      (5.0*D2R)   /* min elevation for measurement error (rad) */
 
-ros::Publisher pub_pntpos_odometry;
-ros::Publisher pub_wls_odometry;
-
 ros::Publisher pub_gnss_raw;
-ros::Publisher pub_velocity_from_doppler;
-
-GNSS_Tools m_GNSS_Tools; // utilities
+ros::Publisher pub_gnss_fix;
+ros::Publisher pub_gnss_vel;
 
 extern void pntposRegisterPub(ros::NodeHandle &n)
 {
-    pub_pntpos_odometry = n.advertise<nav_msgs::Odometry>("WLSENURTKLIB", 1000);
-    pub_gnss_raw = n.advertise<gnss_msgs::GNSS_Raw_Array>("GNSSPsrCarRov1", 1000);
-    pub_wls_odometry = n.advertise<nav_msgs::Odometry>("WLSENUGoGPS", 1000);
-    pub_velocity_from_doppler = n.advertise<nav_msgs::Odometry>("GNSSDopVelRov1", 1000); // velocity_from_doppler
+    pub_gnss_raw = n.advertise<gnss_msgs::GNSS_Raw_Array>("gnss_raw", 1000);
+    pub_gnss_fix = n.advertise<sensor_msgs::NavSatFix>("gnss_fix", 1000);
+    pub_gnss_vel = n.advertise<geometry_msgs::TwistStamped>("gnss_vel", 1000);
 }
-
 
 /* pseudorange measurement error variance ------------------------------------*/
 static double varerr(const prcopt_t *opt, double el, int sys)
@@ -313,7 +286,7 @@ static int rescode(int iter, const obsd_t *obs, int n, const double *rs,
         if (i<n-1&&i<MAXOBS-1&&sat==obs[i+1].sat) {
             trace(2,"duplicated obs data %s sat=%d\n",time_str(time,3),sat);
             i++;
-            LOG(INFO) <<"duplicated observation data " << time_str(time,3) << " sys = " << satsys(sat,NULL)  << " sat = " << sat;
+            ROS_INFO_STREAM("duplicated observation data " << time_str(time,3) << " sys = " << satsys(sat,NULL) << " sat = " << sat);
             continue;
         }
         /* excluded satellite? */
@@ -675,9 +648,20 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         opt_.ionoopt=IONOOPT_BRDC;
         opt_.tropopt=TROPOPT_SAAS;
     }
+    
+    /* create UNIX/ROS timestamp and write to header*/
+    static uint32_t Seq = 0;
+    gtime_t UTC = gpst2utc(obs[0].time);
+    std_msgs::Header Header;
+    Header.stamp.sec = UTC.time;
+    Header.stamp.nsec = UTC.sec*1e9;
+    Header.frame_id = "earth_center";
+    Header.seq = Seq;
+    Seq++;
 
     /* construct data for WLS with gnss_msgs::GNSS_Raw_Array*/
     gnss_msgs::GNSS_Raw_Array gnss_data;
+    gnss_data.header = Header;
     int current_week = 0;
     const double current_tow = time2gpst(obs[0].time, &current_week);
     const double gpstime = current_week * 86400 * 7 + current_tow;    // GPS time in seconds from start of GPS epoch inclusive leap seconds (86400 = sec per day)
@@ -686,12 +670,14 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
     satposs(sol->time,obs,n,nav,opt_.sateph,rs,dts,var,svh);
     
     /* estimate receiver position with pseudorange */
-    double pos[3];
+    double pos[3], pos_bound[3];
     stat = estpos(obs,n,rs,dts,var,svh,nav,&opt_,sol,azel_,vsat,resp,msg);
     ecef2pos(sol->rr,pos);
     
-    /* limit negative altitude to reduce impact of NLOS */
-    pos[2] = std::max(pos[2], -100.0);
+    /* limit negative altitude to reduce impact of NLOS (more than 100m below sea level seems unlikely)*/
+    pos_bound[0] = pos[0];
+    pos_bound[1] = pos[1];
+    pos_bound[2] = std::max(pos[2], -100.0);
 
     /* estimate receiver position with pseudorange by WLS and Eigen */
     int CMP_cnt = 0, GPS_cnt = 0, GAL_cnt = 0, GLO_cnt = 0, SBS_cnt = 0, QZS_cnt = 0;
@@ -714,13 +700,27 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         
         /* get snr*/
         gnss_raw.snr = obs[s_i].SNR[0] * SNR_UNIT;
+        
+        /* re-calculate satellite azimuth and elevation, based on bounded position */
+        double e[3];
+        pos2ecef(pos_bound, &e[0]);
+        for (int n = 0; n < 3; n++)
+        {
+            e[n] = rs[n + s_i*6] - e[n];
+        }
+        const double norm_e = norm(e,3);
+        for (int n = 0; n < 3; n++)
+        {
+            e[n] /= norm_e;
+        }
+        satazel(&pos_bound[0], &e[0], azel_ + s_i*2);
 
         /* get satellite position */
         gnss_raw.azimuth = azel_[0 + s_i*2] * R2D;
         gnss_raw.elevation = azel_[1 + s_i*2] * R2D;
-        gnss_raw.sat_pos_x = rs[0 + s_i * 6];
-        gnss_raw.sat_pos_y = rs[1 + s_i * 6];
-        gnss_raw.sat_pos_z = rs[2 + s_i * 6];
+        gnss_raw.sat_pos_x = rs[0 + s_i*6];
+        gnss_raw.sat_pos_y = rs[1 + s_i*6];
+        gnss_raw.sat_pos_z = rs[2 + s_i*6];
         
         /* get carrier wave freq */
         double freq;
@@ -740,7 +740,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         
         /* ionospheric correction */
         double dion, vion;
-        if (!ionocorr(obs[s_i].time, nav, obs[s_i].sat, pos, azel_+s_i*2, opt->ionoopt, &dion, &vion)) 
+        if (!ionocorr(obs[s_i].time, nav, obs[s_i].sat, pos_bound, azel_+s_i*2, opt->ionoopt, &dion, &vion)) 
         {
             continue;
         }
@@ -750,7 +750,7 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
         
         /* tropospheric correction */
         double dtrp, vtrp;
-        if (!tropcorr(obs[s_i].time, nav, pos, azel_+s_i*2, opt->tropopt, &dtrp, &vtrp))
+        if (!tropcorr(obs[s_i].time, nav, pos_bound, azel_+s_i*2, opt->tropopt, &dtrp, &vtrp))
         {
             continue;
         }
@@ -798,148 +798,63 @@ extern int pntpos(const obsd_t *obs, int n, const nav_t *nav,
             }
             else
             {
-                LOG(INFO) << "Unknow!!!!! Satellite   "<<current_tow;
+                ROS_INFO_STREAM("Unknow!!!!! Satellite   " << current_tow);
             }
             gnss_data.GNSS_Raws.push_back(gnss_raw);
         }
         else
         {
-            LOG(INFO) <<"Elevation angle of sat prn nr. " << gnss_raw.prn_satellites_index  
-                      << " from sys " << sys << " is " << (gnss_raw.elevation*D2R) 
-                      << " <= " << opt_.elmin << " degrees -> ignoring.";
+            ROS_INFO_STREAM("Elevation angle of sat prn nr. " << gnss_raw.prn_satellites_index  
+                            << " from sys " << sys << " is " << (gnss_raw.elevation) 
+                            << " <= " << opt_.elmin*R2D << " degrees -> ignoring.");
         }
     }
 
-    LOG(INFO) << "GPS_cnt " << "["  << SYS_GPS << "]" << "    " << GPS_cnt;
-    LOG(INFO) << "SBS_cnt " << "["  << SYS_SBS << "]" << "    " << SBS_cnt;
-    LOG(INFO) << "GLO_cnt " << "["  << SYS_GLO << "]" << "    " << GLO_cnt;
-    LOG(INFO) << "GAL_cnt " << "["  << SYS_GAL << "]" << "    " << GAL_cnt;
-    LOG(INFO) << "QZS_cnt " << "["  << SYS_QZS << "]" << "   " << QZS_cnt;
-    LOG(INFO) << "CMP_cnt " << "["  << SYS_CMP << "]" << "   " << CMP_cnt;
+    ROS_INFO_STREAM("GPS_cnt " << "["  << SYS_GPS << "]" << "    " << GPS_cnt);
+    ROS_INFO_STREAM("SBS_cnt " << "["  << SYS_SBS << "]" << "    " << SBS_cnt);
+    ROS_INFO_STREAM("GLO_cnt " << "["  << SYS_GLO << "]" << "    " << GLO_cnt);
+    ROS_INFO_STREAM("GAL_cnt " << "["  << SYS_GAL << "]" << "    " << GAL_cnt);
+    ROS_INFO_STREAM("QZS_cnt " << "["  << SYS_QZS << "]" << "   " << QZS_cnt);
+    ROS_INFO_STREAM("CMP_cnt " << "["  << SYS_CMP << "]" << "   " << CMP_cnt);
     
     /* publish raw GNSS measurements*/
-    pub_gnss_raw.publish(gnss_data);
-    
-    
-    /* TODO: remove eigen dependency in the following code */
-    
-    #if 1 // PNT from WLS using Eigen
-    {
-        Eigen::Matrix<double, 3,1> ENU_ref;
-        // ENU_ref<< 114.190297420,22.301487386,0;
-        ENU_ref<< ref_lon, ref_lat, ref_alt;
-        Eigen::Matrix<double, 3, 1> ENU;
-        Eigen::MatrixXd eWLSSolutionECEF = m_GNSS_Tools.WeightedLeastSquare(
-                                            m_GNSS_Tools.getAllPositions(gnss_data),
-                                            m_GNSS_Tools.getAllMeasurements(gnss_data),
-                                            gnss_data, "WLS");
-        // Eigen::MatrixXd eWLSSolutionECEF = m_GNSS_Tools.WeightedLeastSquare_GPS(
-        //                                     m_GNSS_Tools.getAllPositions(gnss_data),
-        //                                     m_GNSS_Tools.getAllMeasurements(gnss_data),
-        //                                     gnss_data);
-        ENU = m_GNSS_Tools.ecef2enu(ENU_ref, eWLSSolutionECEF);
-        // std::cout << "eWLSSolutionECEF (wls)-> "<< eWLSSolutionECEF << std::endl;
-        // std::cout << "ENU (wls)-> "<< ENU << "    epoch-> "<< current_tow<< std::endl;
-        nav_msgs::Odometry odometry;
-        odometry.header.frame_id = "map";
-        odometry.child_frame_id = "map";
-        odometry.pose.pose.position.x = ENU(0);
-        odometry.pose.pose.position.y = ENU(1);
-        odometry.pose.pose.position.z = 1;
-        pub_wls_odometry.publish(odometry);
-    }
-    #endif
-    
+    pub_gnss_raw.publish(gnss_data);    
+
     /* RAIM FDE */
     if (!stat&&n>=6&&opt->posopt[4]) {
         stat=raim_fde(obs,n,rs,dts,var,svh,nav,&opt_,sol,azel_,vsat,resp,msg);
     }
-    #if 1 /* estimate receiver velocity with Doppler */
+    
+    /* copy RTKLIB position solution */
+    sensor_msgs::NavSatFix Fix;
+    Fix.header = Header;
+    Fix.latitude  = pos[0] * R2D;
+    Fix.longitude = pos[1] * R2D;
+    Fix.altitude  = pos[2];
+    
+    /* TODO: copy estimated variance */
+    Fix.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_UNKNOWN;
+    
+    /* publish position */
+    pub_gnss_fix.publish(Fix);
+    
+    /* estimate receiver velocity with Doppler */
     if (stat) {
         estvel(obs,n,rs,dts,nav,&opt_,sol,azel_,vsat);
     }
-    else 
-    {
-        // std::cout<<" the doppler velocity is not estimated due to failure of RAIM"<<std::endl;
-        estvel(obs,n,rs,dts,nav,&opt_,sol,azel_,vsat);
-    }
-    // if (1) estvel(obs,n,rs,dts,nav,&opt_,sol,azel_,vsat, dop_res);
-    // std::cout << "norm(dx,n)-> "<<norm(dop_res,n)<<std::endl;
     
-    nav_msgs::Odometry odometry;
-    odometry.header.frame_id = "map";
-    odometry.child_frame_id = "map";
-    odometry.pose.pose.position.x = current_tow;
-    odometry.twist.twist.linear.x = sol->rr[3];
-    odometry.twist.twist.linear.y = sol->rr[4];
-    odometry.twist.twist.linear.z = sol->rr[5];
-    //odometry.twist.covariance[0] = norm(dop_res,n);
-
-    if(1) // use the snr and ele to model the uncertainty of doppler
-    {
-        Eigen::MatrixXd covarianceMatrix = m_GNSS_Tools.getCovarianceMatrix(
-                                            m_GNSS_Tools.getAllPositions(gnss_data),
-                                            m_GNSS_Tools.getAllMeasurements(gnss_data),
-                                            gnss_data, "WLS");
-        // std::cout << "covarianceMatrix-> \n"<<covarianceMatrix << std::endl;
-        odometry.twist.covariance[0] = covarianceMatrix(0,0);
-        odometry.twist.covariance[1] = covarianceMatrix(1,1);
-        odometry.twist.covariance[2] = covarianceMatrix(2,2);
-
-        // odometry.twist.covariance[0] = sqrt(covarianceMatrix(0,0));
-        // odometry.twist.covariance[1] = sqrt(covarianceMatrix(1,1));
-        // odometry.twist.covariance[2] = sqrt(covarianceMatrix(2,2));
-    }
+    /* publish RTKLIB velocity solution as twist stamped*/
+    geometry_msgs::TwistStamped Twist;
+    Twist.header = Header;
+    Twist.twist.linear.x = sol->rr[3];
+    Twist.twist.linear.y = sol->rr[4];
+    Twist.twist.linear.z = sol->rr[5];
     
-    pub_velocity_from_doppler.publish(odometry);
-    #endif
+    /* TODO: add covariance? */
     
-    /* TODO: change to sensor_msgs/NavSatFix */
+    pub_gnss_vel.publish(Twist);
     
-    #if 1
-    /* Weisong: publish the solution
-    *  no matter the solution is good or not
-     */
-    if(1) // from RTKLIB PNT
-    {
-        Eigen::Matrix<double, 3,1> ENU_ref;
-        // ENU_ref<< 114.190297420,22.301487386,0;
-        ENU_ref<< ref_lon, ref_lat, ref_alt;
-        Eigen::Matrix<double, 3, 1> ENU;
-        Eigen::Matrix<double, 3, 1> ECEF;
-        ECEF<<sol->rr[0], sol->rr[1], sol->rr[2];
-        ENU = m_GNSS_Tools.ecef2enu(ENU_ref, ECEF);
-        // std::cout << "ENU (RTKLIB)-> "<< ENU << std::endl;
-        nav_msgs::Odometry odometry;
-        odometry.header.frame_id = "map";
-        odometry.child_frame_id = "map";
-        odometry.pose.pose.position.x = ENU(0);
-        odometry.pose.pose.position.y = ENU(1);
-        odometry.pose.pose.position.z = 1;
-        for(int i = 0; i < 6; i++)
-        {
-            // odometry.pose.covariance[i] = sol->qr[i];
-        }
-
-        odometry.twist.twist.linear.x = sol->rr[3];
-        odometry.twist.twist.linear.y = sol->rr[4];
-        odometry.twist.twist.linear.z = sol->rr[5];
-        pub_pntpos_odometry.publish(odometry);
-
-        if((int(current_tow) > start_gps_sec) && (int(current_tow) < end_gps_sec))
-        {
-            double pos[3];
-            double rr[3]={sol->rr[0], sol->rr[1], sol->rr[2]};
-            ecef2pos(sol->rr,pos);
-            fprintf(gnss_ublox_wls, "%d,%d,%7.9f,%7.9f,%7.9f,", 2096, int(current_tow),pos[0]*R2D,pos[1]*R2D,pos[2]);
-            fprintf(gnss_ublox_wls, "%7.9f,%7.9f,%7.9f \n", sol->qr[0], sol->qr[1],sol->qr[2]);
-            fflush(gnss_ublox_wls);
-        }
-        
-
-    }
-    #endif
-    
+    /* continue with RTKLIB code*/        
     if (azel) {
         for (i=0;i<n*2;i++) azel[i]=azel_[i];
     }

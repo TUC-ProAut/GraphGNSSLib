@@ -126,11 +126,10 @@ extern "C" {
 #define TSYS_CMP    5                   /* time system: BeiDou time */
 #define TSYS_IRN    6                   /* time system: IRNSS time */
 
-#define ENACMP      1                   /* Weisong: enable BeiDou System */
-#define ENAGLO      1                   /* Weisong: enable GLONASS System */
+#define ENACMP      1                   /* enable BeiDou System */
+#define ENAGLO      1                   /* enable GLONASS System */
 #define ENAQZS      1                   /* enable QZSS System */
 #define ENAGAL      1                   /* enable GALILEO System */
-
 
 #define ref_hongkong_static 0
 #define ref_hongkong_dynamic 0
@@ -184,9 +183,6 @@ extern "C" {
 #define end_gps_sec 2703060
 
 #endif
-
-
-// ENU_ref<< 114.190297420,22.301487386,0;
 
 
 #ifndef NFREQ
