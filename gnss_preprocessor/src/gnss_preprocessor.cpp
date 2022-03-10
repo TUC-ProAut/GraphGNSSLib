@@ -309,7 +309,7 @@ int main(int argc, char **argv)
 }
 
 /*****dummy application functions for shared library*****/
-extern int showmsg(char *format,...) {
+extern int showmsg(const char *format,...) {
     va_list arg;
     char buff[1024];
     if (*format) {

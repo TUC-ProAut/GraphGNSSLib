@@ -1842,7 +1842,7 @@ EXPORT int gis_read(const char *file, gis_t *gis, int layer);
 EXPORT void gis_free(gis_t *gis);
 
 /* application defined functions ---------------------------------------------*/
-extern int showmsg(char *format,...);
+extern int showmsg(const char *format,...);
 extern void settspan(gtime_t ts, gtime_t te);
 extern void settime(gtime_t time);
 
