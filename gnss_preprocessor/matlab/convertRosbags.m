@@ -1,4 +1,4 @@
-%% Convert the generated Rosbag file from GraphGNSSLib to a .mat file
+%% Convert the generated Rosbag file from gnss_converter to a .mat file
 
 clc 
 close all
@@ -13,17 +13,17 @@ Dataset = 1;
 
 %% load Rosbag GraphGNSSLib
 if Dataset == 1
-    Rosbag = rosbag('Berlin_Gendarmenmarkt_preprocessed.bag');
+    Rosbag = rosbag('smartloc_Berlin_Gendarmenmarkt_preprocessed.bag');
 elseif Dataset == 2
-    Rosbag = rosbag('Berlin_Potsdamer_Platz_preprocessed.bag');
+    Rosbag = rosbag('smartloc_Berlin_Potsdamer_Platz_preprocessed.bag');
 elseif Dataset == 3
-    Rosbag = rosbag('Frankfurt_Main_Tower_preprocessed.bag');
+    Rosbag = rosbag('smartloc_Frankfurt_Main_Tower_preprocessed.bag');
 elseif Dataset == 4
-    Rosbag = rosbag('Frankfurt_Westend_Tower_preprocessed.bag');
+    Rosbag = rosbag('smartloc_Frankfurt_Westend_Tower_preprocessed.bag');
 end
 
 %% Bag conversion
-Topic = select(Rosbag,'Topic','/gnss_preprocessor_node/GNSSPsrCarRov1');
+Topic = select(Rosbag,'Topic','/gnss_preprocessor_node/gnss_raw');
 ROS_struct = readMessages(Topic,'DataFormat','struct');
 
 if Dataset == 1
@@ -83,11 +83,11 @@ for n = 1:length(ROS_struct)
 end
 
 if Dataset == 1
-    save('Data_Berlin_Gendarmenmarkt_GraphGNSSLib.mat', 'Data')
+    save('Data_Berlin_Gendarmenmarkt_gnss_converter.mat', 'Data')
 elseif Dataset == 2
-    save('Data_Berlin_Potsdamer_Platz_GraphGNSSLib.mat', 'Data')
+    save('Data_Berlin_Potsdamer_Platz_gnss_converter.mat', 'Data')
 elseif Dataset == 3
-    save('Data_Frankfurt_Main_Tower_GraphGNSSLib.mat', 'Data')
+    save('Data_Frankfurt_Main_Tower_gnss_converter.mat', 'Data')
 elseif Dataset == 4
-    save('Data_Frankfurt_Westend_Tower_GraphGNSSLib.mat', 'Data')
+    save('Data_Frankfurt_Westend_Tower_gnss_converter.mat', 'Data')
 end
