@@ -1,12 +1,14 @@
 # gnss_converter
 ### An Open-source ROS Package for GNSS Preprocessing
 
-This ROS package contains a simple RINEX-to-Rosbag converter written in C++. It decodes observations from a multi-constellation GNSS receiver and augments them with ephemeris, atmospheric corrections and the individual satellite clock bias.
+This ROS package contains a simple RINEX-to-Rosbag converter written in C++. It decodes observations from a multi-constellation GNSS receiver and augments them with an ephemeris, atmospheric corrections, and the individual satellite clock bias.
 
-The package is used to generate a Rosbag file containing raw GNSS pseudoranges for further research. In addition, it contains a rover position-fix, base position-fix, and doppler velocity data calculated by the RTKLIB. A Matlab script can ultimately be used to convert the Rosbag file to a .mat file.
+The package is used to generate a Rosbag file containing raw GNSS pseudoranges for further research.
+In addition, it contains an estimated fix of the rover's position and a velocity estimate based on Doppler data, both calculated by the RTKLIB.
+A Matlab script can ultimately be used to convert the Rosbag file to a .mat file.
 
-Please not that this repository holds just a stripped-down version [GraphGNSSLib](https://github.com/weisongwen/GraphGNSSLib), which provides a full factor graph back-end. We created this fork for a simpler maintainability of the GNSS preprocessor.
-
+Please note that this repository holds just a stripped-down version [GraphGNSSLib](https://github.com/weisongwen/GraphGNSSLib), which provides a full factor graph back-end.
+We created this fork for a more straightforward maintainability of the gnss_preprocessor package.
 
 ## 1. Install ROS
 
@@ -14,7 +16,7 @@ Install [ROS](http://wiki.ros.org/ROS/Installation) on a Ubuntu machine. The pac
 
 ## 2. Build gnss_converter
 
-Clone the repository to a desired folder and build the package:
+Clone the repository to the desired folder and build the package:
 ```
 mkdir -p gnss_converter/src
 cd gnss_converter/src
@@ -22,18 +24,19 @@ git clone https://github.com/TUC-ProAut/gnss_converter.git
 cd ..
 catkin_make
 ```
-Add the setup.bash to your ~.bashrc:
+Source the built packages:
 ```
 source ~/gnss_converter/devel/setup.bash
 ```
 
 ## 3. Configuration
 
-Yaml files are used for the configuration of the gnss preprocessor. Many preconfigured examples are given, but new configurations can also be created.
+We employ YAML files for the configuration of the gnss_preprocessor.
+Many pre-configured examples exist, but new configurations can also be created easily.
 
 ### 3.1 Preconfigured
 
-Example configurations of many different datasets can be found [here](/gnss_preprocessor/config).
+Example configurations of many different datasets can be found in the [config](/gnss_preprocessor/config) folder.
 
 ### 3.2 Custom
 
@@ -53,7 +56,8 @@ Please see the [documentation of the RTKLIB](http://www.rtklib.com/rtklib_docume
 
 ### 3.3 Launchfiles
 
-ROS launchfiles are used to start the gnss preprocessor. The paths to the config file and all the other GNSS-related files have to be specified here.
+ROS launch files are used to start the gnss_preprocessor.
+The paths to the config file and all the other GNSS-related files have to be specified there.
 
 Many examples are given inside the [launch](/gnss_preprocessor/launch) folder. 
 
@@ -65,12 +69,12 @@ All information about downloading the GNSS-related files is separated to ["Getti
 
 ### 5.1 Run GNSS preprocessor with your own RINEX file
 
-Run the desired launchfile: 
+Run the desired launch file: 
 ```
 roslaunch gnss_preprocessor <datasetname>.launch
 ```
 
-While running you can see the number of satellites used for each system:
+While running, you can see the number of available satellites for each system:
 ```
 [ INFO] [1647857601.020952311]: GPS_cnt [1]   9
 [ INFO] [1647857601.020979743]: SBS_cnt [2]   0
@@ -94,7 +98,8 @@ Different messages are published while the package is running:
 ### 5.3 Conversion to a Matlab-file
 
 The file [convertRosbags.m](/gnss_preprocessor/matlab/) can be used to convert the generated Rosbag file to a .mat file for further evaluation.
-Please note that currently only a few specific datasets can be directly used. For own datasets, the filenames have to be manually entered.
+Please note that only a few specific datasets can be used directly. 
+For custom datasets, the filenames have to be entered manually.
 
 ## 6. Acknowledgments
 
