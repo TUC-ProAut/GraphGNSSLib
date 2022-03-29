@@ -46,10 +46,10 @@ The following parameters have to be adapted to fit to the considered dataset. Th
 - frequency: all used frequencies of the GNSS receiver (1: L1, 2: L1+L2, 3: L1+L2+L5)
 - soltype: type of the solution (0: forward, 1: backward, 2: combined)
 - satellites: list of all GNSS-systems to be used (GPS, GLONASS, Galileo, BeiDou, QZSS, SBAS)
-- shared_ephemeris: use only one RINEX file for the broadcast ephemeris (true/false) --> please see [Getting GNSS relates files](docs/gnss_related_files.md)
-- precise_ephemeris: use the precise satellite orbit solution (true/false) --> please see [Getting GNSS relates files](docs/gnss_related_files.md)
+- shared_ephemeris: use only one RINEX file for the broadcast ephemeris (true/false) --> please see [Getting GNSS relates files](gnss_preprocessor/docs/gnss_related_files.md)
+- precise_ephemeris: use the precise satellite orbit solution (true/false) --> please see [Getting GNSS relates files](gnss_preprocessor/docs/gnss_related_files.md)
 - ionex_correction: use a IONEX TEC correction file for ionosphere correction
-- custom_atx: use a custom antenna model file --> please see [Getting GNSS relates files](docs/gnss_related_files.md)
+- custom_atx: use a custom antenna model file --> please see [Getting GNSS relates files](gnss_preprocessor/docs/gnss_related_files.md)
 - elevationmask: minimal elevation angle of satellites to be used in degrees 
 
 Please see the [documentation of the RTKLIB](http://www.rtklib.com/rtklib_document.htm) for further explanations regarding some parameters.
@@ -63,7 +63,7 @@ Many examples are given inside the [launch](/gnss_preprocessor/launch) folder.
 
 ## 4. Getting GNSS related files
 
-All information about downloading the GNSS-related files is separated to ["Getting GNSS relates files"](docs/gnss_related_files.md).
+All information about downloading the GNSS-related files are summarized in ["Getting GNSS relates files"](gnss_preprocessor/docs/gnss_related_files.md).
 
 ## 5. Usage
 
@@ -103,7 +103,7 @@ For custom datasets, the filenames have to be entered manually.
 
 ## 6. Acknowledgments
 
-Since this package is just a stripped-down version of the GraphGNSSLib from [Weisong Wen](https://weisongwen.wixsite.com/weisongwen), all credits for creating this helpful converter belong to him.
+Since this package is just a stripped-down and simplified version of [Weisong Wen's](https://weisongwen.wixsite.com/weisongwen) GraphGNSSLib, the credits for initially creating this helpful converter belong to him.
 The [RTKLIB](http://www.rtklib.com/) is used internally for GNSS data decoding and atmospheric corrections.
 
 ## 7. License
