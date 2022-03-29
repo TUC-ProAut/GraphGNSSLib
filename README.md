@@ -46,10 +46,10 @@ The following parameters have to be adapted to fit to the considered dataset. Th
 - frequency: all used frequencies of the GNSS receiver (1: L1, 2: L1+L2, 3: L1+L2+L5)
 - soltype: type of the solution (0: forward, 1: backward, 2: combined)
 - satellites: list of all GNSS-systems to be used (GPS, GLONASS, Galileo, BeiDou, QZSS, SBAS)
-- shared_ephemeris: use only one RINEX file for the broadcast ephemeris (true/false) --> please see [Getting GNSS relates files](gnss_preprocessor/docs/gnss_related_files.md)
-- precise_ephemeris: use the precise satellite orbit solution (true/false) --> please see [Getting GNSS relates files](gnss_preprocessor/docs/gnss_related_files.md)
+- shared_ephemeris: use only one RINEX file for the broadcast ephemeris (true/false)
+- precise_ephemeris: use the precise satellite orbit solution (true/false)
 - ionex_correction: use a IONEX TEC correction file for ionosphere correction
-- custom_atx: use a custom antenna model file --> please see [Getting GNSS relates files](gnss_preprocessor/docs/gnss_related_files.md)
+- custom_atx: use a custom antenna model file
 - elevationmask: minimal elevation angle of satellites to be used in degrees 
 
 Please see the [documentation of the RTKLIB](http://www.rtklib.com/rtklib_document.htm) for further explanations regarding some parameters.
