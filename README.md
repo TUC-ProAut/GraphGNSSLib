@@ -49,8 +49,8 @@ They are internally used by the RTKLIB and GraphGNSSLib scripts:
 - `satellites`: list of all GNSS-systems to be used (GPS, GLONASS, Galileo, BeiDou, QZSS, SBAS)
 - `shared_ephemeris`: use one common RINEX file for the broadcast ephemeris (true/false)
 - `precise_ephemeris`: use a SP3 file for the precise satellite orbit solution (true/false)
-- `ionex_correction`: use a IONEX file for ionosphere correction
-- `custom_atx`: use a custom antenna model file
+- `ionex_correction`: use a IONEX file for ionosphere correction (true/false)
+- `custom_atx`: use a custom antenna model file (true/false)
 - `elevationmask`: minimal elevation angle of satellites to be used in degrees 
 
 Please see also the [documentation of the RTKLIB](http://www.rtklib.com/rtklib_document.htm) for further explanations regarding specific parameters.
