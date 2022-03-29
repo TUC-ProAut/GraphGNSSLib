@@ -40,19 +40,20 @@ Example configurations of many different datasets can be found in the [config](/
 
 ### 3.2 Custom
 
-The following parameters have to be adapted to fit to the considered dataset. They are internally used by the RTKLIB and GraphGNSSLib scripts:
+The following parameters have to be adapted to fit to the considered dataset. 
+They are internally used by the RTKLIB and GraphGNSSLib scripts:
 
-- mode: GNSS positioning mode (0: single, 1: DGPS/DGNSS, 2: kinematic)
-- frequency: all used frequencies of the GNSS receiver (1: L1, 2: L1+L2, 3: L1+L2+L5)
-- soltype: type of the solution (0: forward, 1: backward, 2: combined)
-- satellites: list of all GNSS-systems to be used (GPS, GLONASS, Galileo, BeiDou, QZSS, SBAS)
-- shared_ephemeris: use only one RINEX file for the broadcast ephemeris (true/false)
-- precise_ephemeris: use the precise satellite orbit solution (true/false)
-- ionex_correction: use a IONEX TEC correction file for ionosphere correction
-- custom_atx: use a custom antenna model file
-- elevationmask: minimal elevation angle of satellites to be used in degrees 
+- `mode`: GNSS positioning mode (0: single, 1: DGPS/DGNSS, 2: kinematic)
+- `frequency`: all used frequencies of the GNSS receiver (1: L1, 2: L1+L2, 3: L1+L2+L5)
+- `soltype`: type of the solution (0: forward, 1: backward, 2: combined)
+- `satellites`: list of all GNSS-systems to be used (GPS, GLONASS, Galileo, BeiDou, QZSS, SBAS)
+- `shared_ephemeris`: use one common RINEX file for the broadcast ephemeris (true/false)
+- `precise_ephemeris`: use a SP3 file for the precise satellite orbit solution (true/false)
+- `ionex_correction`: use a IONEX file for ionosphere correction
+- `custom_atx`: use a custom antenna model file
+- `elevationmask`: minimal elevation angle of satellites to be used in degrees 
 
-Please see the [documentation of the RTKLIB](http://www.rtklib.com/rtklib_document.htm) for further explanations regarding some parameters.
+Please see also the [documentation of the RTKLIB](http://www.rtklib.com/rtklib_document.htm) for further explanations regarding specific parameters.
 
 ### 3.3 Launchfiles
 
@@ -98,12 +99,11 @@ Different messages are published while the package is running:
 ### 5.3 Conversion to a Matlab-file
 
 The file [convertRosbags.m](/gnss_preprocessor/matlab/) can be used to convert the generated Rosbag file to a .mat file for further evaluation.
-Please note that only a few specific datasets can be used directly. 
-For custom datasets, the filenames have to be entered manually.
+Please note that only a few specific datasets can be used directly.  For custom datasets, the filenames have to be entered manually.
 
 ## 6. Acknowledgments
 
-Since this package is just a stripped-down and simplified version of [Weisong Wen's](https://weisongwen.wixsite.com/weisongwen) GraphGNSSLib, the credits for initially creating this helpful converter belong to him.
+Since this package is a stripped-down and modified version of [Weisong Wen's](https://weisongwen.wixsite.com/weisongwen) GraphGNSSLib, the credits for initially creating this helpful converter belong to him.
 The [RTKLIB](http://www.rtklib.com/) is used internally for GNSS data decoding and atmospheric corrections.
 
 ## 7. License
