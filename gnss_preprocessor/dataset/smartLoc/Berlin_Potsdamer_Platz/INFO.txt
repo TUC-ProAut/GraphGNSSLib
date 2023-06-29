@@ -1,0 +1,7 @@
+RINEX Files:
+Berlin_Potsdamer_Platz.obs: GNSS measurements from observation
+Berlin_Potsdamer_Platz.sp3: precise ephemeris data
+brdc1580.16n: Ephemeris data of GPS
+brdc1580.16g: Ephemeris data of GLONASS
+codg1580.16i: IONEX data
+REDU00BEL_R_20161580000_01D_SN.rnx: SBAS data

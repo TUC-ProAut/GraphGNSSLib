@@ -1,0 +1,8 @@
+RINEX Files:
+Frankfurt_Main_Tower.obs: GNSS measurements from observation
+Frankfurt_Main_Tower.sp3: precise ephemeris data
+brdc2520.16n: Ephemeris data of GPS
+brdc2520.16g: Ephemeris data of GLONASS
+wroc2520.16l: Ephemeris data of Galileo
+codg2520.16i: IONEX data
+REDU00BEL_R_20162520000_01D_SN.rnx: SBAS data
